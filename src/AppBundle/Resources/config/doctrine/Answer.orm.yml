@@ -1,0 +1,55 @@
+AppBundle\Entity\Answer:
+    type: entity
+    table: answers
+    repositoryClass: AppBundle\Entity\Repository\AnswerRepository
+    indexes:
+        FK_answers_questions:
+            columns:
+                - question_id
+        FK_answers_quizes:
+            columns:
+                - quiz_id
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        text:
+            type: text
+            nullable: true
+            length: 65535
+            options:
+                fixed: false
+        isCorrect:
+            type: integer
+            nullable: true
+            options:
+                unsigned: false
+            column: is_correct
+    manyToOne:
+        question:
+            targetEntity: Question
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: answers
+            joinColumns:
+                question_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        quiz:
+            targetEntity: Quiz
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                quiz_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

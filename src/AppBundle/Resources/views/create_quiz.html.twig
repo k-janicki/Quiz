@@ -1,0 +1,269 @@
+{% extends "layout.html.twig" %}
+
+{% form_theme form _self %}
+
+{% block _quiz_questions_entry_widget %}
+    {% if form.vars.errors|length %}
+        <div class="alert alert-danger has-error">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
+    {{ block('question_widget') }}
+{% endblock %}
+
+{% block _quiz_questions_entry_options_widget %}
+    {{- block('form_rows') -}}
+    {{- form_rest(form) -}}
+{% endblock %}
+
+{% block answer_row %}
+    <li class="form-horizontal answer-item">
+
+        <div class="row form-group mt-2">
+            <div class="offset-2 col-10">
+                <div class="row">
+                    <div class="col-2 offset-1">
+                        {{ form_errors(form.text) }}
+                        {{ form_label(form.text) }}
+                    </div>
+                    <div class="col-8">
+                        {{ form_widget(form.text) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2 offset-1">
+                        {{ form_errors(form.is_correct) }}
+                        {{ form_label(form.is_correct) }}
+                    </div>
+                    <div class="col-8">
+                        {{ form_widget(form.is_correct) }}
+                    </div>
+                </div>
+                <button type="button" class="remove-answer-btn o-button">Usuń odpowiedź</button>
+            </div>
+        </div>
+    </li>
+{% endblock %}
+
+
+{% block question_widget %}
+    <fieldset class="form-horizontal question-item">
+        <div class="row mt-4">
+            <div class="col-2 offset-1">
+                {{ form_errors(form.text) }}
+                {{ form_label(form.text) }}
+            </div>
+            <div class="col-8">
+                {{ form_widget(form.text) }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2 offset-1">
+                {{ form_errors(form.type) }}
+                {{ form_label(form.type) }}
+            </div>
+            <div class="col-8">
+                {{ form_widget(form.type) }}
+            </div>
+        </div>
+        <ul class="answer-options" style="list-style: none;"
+            data-prototype="{{ form_row(form.answers.vars.prototype)|e('html_attr') }}">
+            {{ form_widget(form.answers) }}
+        </ul>
+        <div class="form-group mt-2">
+            <div>
+                <button type="button" class="remove-question-btn o-button">Usuń pytanie</button>
+                <button type="button" class="add-answer-btn o-button o-button--grey">Dodaj kolejną odpowiedź</button>
+            </div>
+        </div>
+        <hr class="page-wide-block">
+    </fieldset>
+{% endblock %}
+
+{% block navs %}
+    <div class="col-10 d-flex justify-content-end">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link " id="home-tab" href="{{ path('front', {"link":"home"}) }}" role="tab"
+                   aria-controls="home" aria-selected="true">Strona główna</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="quiz-tab" href="{{ path('front', {"link":"quiz"}) }}" role="tab"
+                   aria-controls="quiz" aria-selected="false">Quizy</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="ranking-tab" href="{{ path('front', {"link":"ranking"}) }}" role="tab"
+                   aria-controls="ranking" aria-selected="false">Rankingi</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" id="news-tab" href="{{ path('front', {"link":"news"}) }}" role="tab"
+                   aria-controls="news" aria-selected="false">Artykuły</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="logout-tab" data-toggle="tab" href="{{ path('front', {"link":"logout"}) }}"
+                   role="tab"
+                   aria-controls="logout" aria-selected="false">Wyloguj się</a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-9 offset-2"  style="background: rgba(255,255,255,0.8);padding:30px">
+            <div class="form">
+                {# <a href="{{ path('front_quizzes', {typeName: type}) }}" class="o-button"><i class="fa fa-chevron-left"></i></a> #}
+
+                {{ form_start(form) }}
+
+                {{ form_errors(form) }}
+                {# {{ form_row(form.name) }} #}
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.name) }}
+                    </div>
+                    <div class="col-8">
+                        {{ form_widget(form.name) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.description) }}
+                    </div>
+                    <div class="col-8">
+                        {{ form_widget(form.description) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.dateStart) }}
+                    </div>
+                    <div class="col-8">
+                        {{ form_widget(form.dateStart) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.dateEnd) }}
+                    </div>
+                    <div class="col-8">
+                        {{ form_widget(form.dateEnd) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.tries) }}
+                    </div>
+                    <div class="col-8">
+                        {{ form_widget(form.tries) }}
+                    </div>
+                </div>
+
+                {% set questionPrototype = form_widget(form.questions.vars.prototype) %}
+                <div class="questions" data-prototype="{{ questionPrototype|e('html_attr') }}">
+                    {% if form.questions.vars.errors|length %}
+                        <div class="alert alert-danger has-error">
+                            {{ form_errors(form.questions) }}
+                        </div>
+                    {% endif %}
+                    {% for question in form.questions %}
+                        {{ form_widget(question) }}
+                    {% else %}
+                        {{ form_widget(form.questions) }}
+                    {% endfor %}
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                    <button type="button" class="add-question-btn o-button o-button--grey">Dodaj kolejne pytanie
+                    </button>
+                </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        {{ form_rest(form) }}
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        var $collectionHolder = $('.questions');
+        $collectionHolder.data('widget-counter', $collectionHolder.children().length);
+
+        var $answersCollections = $('.answer-options');
+        $answersCollections.each(function () {
+            $(this).data('widget-counter', $(this).children().length);
+        });
+
+        $collectionHolder.on('click', '.remove-question-btn', removeCollectionItem);
+        $collectionHolder.on('click', '.remove-answer-btn', removeCollectionItem);
+        $collectionHolder.on('click', '.add-answer-btn', function () {
+            addCollectionItem($(this).parent().parent().siblings('.answer-options').first(), '__options_name__')
+        });
+
+        var $addMemberBtn = $('.add-question-btn');
+        $addMemberBtn.on('click', function () {
+            addCollectionItem($collectionHolder, '__name__');
+        });
+
+        function addCollectionItem(collection, prototypeName) {
+            var prototype = collection.data('prototype');
+            var counter = collection.data('widget-counter') | collection.children().length;
+            var re = new RegExp(prototypeName, "g");
+            var newForm = prototype.replace(re, counter);
+            counter++;
+            collection.data('widget-counter', counter);
+            collection.append($(newForm).hide().fadeIn(600));
+        }
+
+        function removeCollectionItem() {
+            $(this).parent().parent().parent().fadeOut('slow', function () {
+                $(this).remove();
+            })
+        }
+
+    </script>
+    <script src="{{ asset('bundles/app/js/moment-with-locales.min.js') }}"></script>
+    <script src="{{ asset('bundles/app/js/bootstrap-datetimepicker.js') }}"></script>
+    <script>
+        $(function () {
+            $(".datetimepicker").datetimepicker({
+                useCurrent: false,
+                allowInputToggle: true,
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    previous: "fa fa-arrow-left",
+                    next: "fa fa-arrow-right",
+                }
+            });
+
+            $("[data-date-linked]").each(function () {
+                var from = $(this);
+                var to = $("#" + $(this).data('date-linked'));
+                if (from.length && to.length) {
+                    if (from.val()) {
+                        to.data("DateTimePicker").minDate(from.val());
+                    }
+                    if (to.val()) {
+                        from.data("DateTimePicker").maxDate(to.val());
+                    }
+                    from.on("dp.change", function (e) {
+                        to.data("DateTimePicker").minDate(e.date);
+                    });
+                    to.on("dp.change", function (e) {
+                        from.data("DateTimePicker").maxDate(e.date);
+                    });
+                } else {
+                    console.error("Unknown linked datetimepickers for" + $(this).data('date-linked'));
+                }
+            })
+        });
+    </script>
+{% endblock %}

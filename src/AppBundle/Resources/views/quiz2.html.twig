@@ -1,0 +1,73 @@
+{% extends 'layout.html.twig' %}
+{% block stylesheets %}
+    <style>
+        body {
+            background: rgb(44, 52, 59);
+        }
+
+        #dalej {
+            margin-left: 75%;
+            margin-bottom: 10px;
+        }
+
+        .quiz-content {
+            background: rgb(61, 73, 82);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -70%);
+            margin-bottom: 35px;
+        }
+
+        .description {
+            color: white;
+            padding: 5px;
+            margin: 10px 10px 35px;
+        }
+
+        .checkbox {
+            margin-left: 50px;
+            color: wheat;
+        }
+    </style>
+{% endblock %}
+{% block navs %}
+    <div class="col-8 d-flex align-items-center justify-content-center">
+        <h2 style="color: darkred">
+            Jesteś w trakcie rozwiązywania Quizu
+        </h2>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-8 offset-2 col-md-6 offset-3" style="background: rgb(61,73,82)">
+            <form id="quiz-form" method="post">
+                <div class="row">
+                    <div class="col-12">
+                        <input type="hidden" name="option">
+                        <input type="hidden" name="current" value="{{ current }}">
+                        <input type="hidden" name="question" value="{{ questions[current].id }}">
+                        <div class="description">{{ questions[current].text }}</div>
+                    </div>
+                </div>
+                {% for answer in questions[current].answers %}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="{{ answer.id }}" name="option[]">
+                                    {{ answer.text }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <h1 style="color: red;font-size: 20px !important;" id="info-text"></h1>
+                <br>
+                <div class="quiz-box__footer">
+                    <button type="submit" id="dalej" class="btn btn-primary">Dalej &raquo;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

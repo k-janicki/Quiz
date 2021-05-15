@@ -1,0 +1,227 @@
+{% extends 'layout.html.twig' %}
+{% block stylesheets %}
+    <style>
+        body {
+            background: rgb(44,52,59);
+        }
+        #dalej {
+            margin-left: 75%;
+            margin-bottom: 10px;
+        }
+        .board {
+            position: relative;
+        }
+        .board-column {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 30%;
+            margin: 10px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            z-index: 1;
+        }
+        .board-column.muuri-item-releasing {
+            z-index: 2;
+        }
+        .board-column.muuri-item-dragging {
+            z-index: 3;
+            cursor: move;
+        }
+        .board-column-header {
+            position: relative;
+            height: 50px;
+            line-height: 50px;
+            overflow: hidden;
+            padding: 0 20px;
+            text-align: center;
+            background: #333;
+            color: #fff;
+            border-radius: 3px 3px 0 0;
+        }
+        .board-column.options .board-column-header {
+            background: #4A9FF9;
+        }
+        .board-column.true .board-column-header {
+            background: #2ac06d;
+        }
+        .board-column.false .board-column-header {
+            background: orangered;
+        }
+        .board-column-content {
+            position: relative;
+            border: 10px solid transparent;
+            min-height: 95px;
+        }
+        .board-item {
+            position: absolute;
+            width: 100%;
+            margin: 5px 0;
+        }
+        .board-item.muuri-item-releasing {
+            z-index: 9998;
+        }
+        .board-item.muuri-item-dragging {
+            z-index: 9999;
+            cursor: move;
+        }
+        .board-item.muuri-item-hidden {
+            z-index: 0;
+        }
+        .board-item-content {
+            position: relative;
+            padding: 20px;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 17px;
+            cursor: pointer;
+            -webkit-box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+            box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+        }
+        .quiz-options {
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .quiz-correct {
+            width: 40%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .quiz-wrong {
+            width: 40%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+{% endblock %}
+{% block navs %}
+    <div class="col-8 d-flex align-items-center justify-content-center">
+        <h2 style="color: darkred">
+            Jesteś w trakcie rozwiązywania Quizu
+        </h2>
+    </div>
+{% endblock %}
+{% block content %}
+<div class="quiz-content">
+    <form id="quiz-form" method="post">
+        <input type="hidden" name="option" >
+        <input type="hidden" name="current" value="{{ current }}" >
+        <input type="hidden" name="question" value="{{ questions[current].id }}" >
+        <div class="board">
+            <div class="board-column options quiz-options">
+                <div class="board-column-header">{{questions[current].text}}</div>
+                <div class="board-column-content c-o">
+                    {% for answer in questions[current].answers %}
+                        <div id="{{ answer.id }}" class="board-item">
+                            <div class="board-item-content">
+                                {{ answer.text }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="board-column true quiz-correct">
+                <div class="board-column-header">Prawda</div>
+                <div class="board-column-content c-c">
+                </div>
+            </div>
+            <div class="board-column false quiz-wrong">
+                <div class="board-column-header">Fałsz</div>
+                <div class="board-column-content c-w">
+                </div>
+            </div>
+        </div>
+        <h1 style="color: red;font-size: 20px !important;" id="info-text"></h1>
+        <br>
+        <div class="quiz-box__footer">
+            <button type="button" id="dalej" class="btn btn-primary">Dalej &raquo;</button>
+        </div>
+    </form>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+    <script src="https://unpkg.com/muuri@0.8.0/dist/muuri.min.js"></script>
+    <script>
+        var itemContainers = [].slice.call(document.querySelectorAll('.board-column-content'));
+        var columnGrids = [];
+        var boardGrid;
+
+        itemContainers.forEach(function (container) {
+
+            var grid = new Muuri(container, {
+                items: '.board-item',
+                layoutDuration: 10,
+                layoutEasing: 'ease',
+                dragEnabled: true,
+                dragSort: function () {
+                    return columnGrids;
+                },
+                dragSortInterval: 0,
+                dragContainer: document.body,
+                dragReleaseDuration: 1,
+                dragReleaseEasing: 'ease'
+            })
+                .on('dragStart', function (item) {
+                    item.getElement().style.width = item.getWidth() + 'px';
+                    item.getElement().style.height = item.getHeight() + 'px';
+                })
+                .on('dragReleaseEnd', function (item) {
+                    item.getElement().style.width = '';
+                    item.getElement().style.height = '';
+                    if (allOptionsAssigned()) {
+                        $("#dalej").attr("disabled", false);
+                    }
+                    columnGrids.forEach(function (grid) {
+                        grid.refreshItems();
+                    });
+                })
+                .on('layoutStart', function () {
+                    boardGrid.refreshItems().layout();
+                });
+
+            columnGrids.push(grid);
+
+        });
+
+        boardGrid = new Muuri('.board', {
+        });
+
+        function allOptionsAssigned() {
+            var optionsNotAssigned = $('div.c-o div.board-item');
+            return optionsNotAssigned.length === 0;
+        }
+        $('#dalej').on('click', function(e) {
+            var $correct = [];
+
+            $('div.c-c').children().each(function (index) {
+                $correct[index] = $(this).attr('id');
+            });
+            $('input[name="option"]').val($correct);
+            if(allOptionsAssigned()) {
+                e.preventDefault();
+                $.ajax({
+                    url:"/quizajax",
+                    type:"POST",
+                    dataType: "json",
+                    data:( {
+                        'data': JSON.stringify('test'),
+                        selection: $correct
+                    }),
+                });
+                console.log($correct)
+                $('#quiz-form').submit();
+            }
+        });
+
+        $('#dalej').on('click', function () {
+            if (!allOptionsAssigned()) {
+                $('#dalej').attr("disabled", true);
+                $('#info-text').text("Przenieś wszystkie opcje!");
+                return;
+            }
+        });
+
+    </script>
+{% endblock javascripts %}

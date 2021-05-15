@@ -1,0 +1,56 @@
+AppBundle\Entity\News:
+    type: entity
+    table: news
+    repositoryClass: AppBundle\Entity\Repository\NewsRepository
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        createdAt:
+            type: datetime
+            nullable: true
+            options:
+                default: current_timestamp()
+            column: created_at
+        updatedAt:
+            type: datetime
+            nullable: true
+            options:
+                default: 'NULL'
+            column: updated_at
+        dateStart:
+            type: datetime
+            nullable: true
+            options:
+                default: 'NULL'
+            column: date_start
+        dateEnd:
+            type: datetime
+            nullable: true
+            options:
+                default: 'NULL'
+            column: date_end
+        status:
+            type: boolean
+            nullable: false
+            options:
+                default: '1'
+        title:
+            type: string
+            nullable: false
+            length: 32
+            options:
+                fixed: false
+        body:
+            type: text
+            nullable: false
+            length: 65535
+            options:
+                fixed: false
+    lifecycleCallbacks: {  }

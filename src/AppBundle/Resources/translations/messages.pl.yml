@@ -1,0 +1,13 @@
+quiz:
+  form:
+    name: 'Tytuł quizu'
+    description: 'Opis quizu'
+    dateStart: 'Data rozpoczęcia'
+    dateEnd: 'Data zakończenia'
+    tries: 'Liczba podejść'
+    question:
+      type: 'Typ pytania'
+      text: 'Treść pytania'
+    question_answers:
+      text: 'Treść odpowiedzi'
+      is_correct: 'Czy poprawna?'

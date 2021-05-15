@@ -1,0 +1,15 @@
+AppBundle\Entity\Role:
+    type: entity
+    table: roles
+    repositoryClass: AppBundle\Entity\Repository\RoleRepository
+    id:
+        id:
+            type: string
+            nullable: false
+            length: 16
+            options:
+                fixed: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    lifecycleCallbacks: {  }

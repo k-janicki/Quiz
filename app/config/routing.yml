@@ -1,0 +1,39 @@
+quiz:
+    path:     /quiz/{id}
+    defaults: { _controller: AppBundle\Controller\QuizController::quizAction, id: 1 }
+    requirements:
+      id: \d+
+#quiz_ajax:
+#  path:     /quizajax
+#  defaults: { _controller: AppBundle\Controller\QuizController::quizAjaxAction }
+
+front:
+    path:     /
+    defaults: { _controller: AppBundle\Controller\QuizController::frontAction }
+
+test:
+  path: /test
+  defaults: {_controller: AppBundle\Controller\QuizController::testAction}
+
+login:
+  path:     /login
+  defaults: {_controller: AppBundle\Controller\SecurityController::loginAction}
+
+logout:
+  path: /logout
+
+create_quiz:
+  path: /new/quiz
+  defaults: {_controller: AppBundle\Controller\QuizController::newAction}
+
+news_list:
+  path: /news
+  defaults: {_controller: AppBundle\Controller\NewsController::indexAction}
+
+news:
+  path: /news/{id}
+  defaults: {_controller: AppBundle\Controller\NewsController::indexAction}
+
+news_new:
+  path: /new/news
+  defaults: {_controller: AppBundle\Controller\NewsController::newAction}

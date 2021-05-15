@@ -1,0 +1,47 @@
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <table class="table table-striped table-dark">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Imie</th>
+                <th scope="col">Nazwisko</th>
+                <th scope="col">Quiz</th>
+                <th scope="col">Liczba powtórzeń</th>
+                <th scope="col">Liczba punktów</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in ranking %}
+                {% if user is not defined and tryNumber is not defined and quiz is not defined %}
+                    {% set user = row[0].user.id %}
+                    {% set tryNumber = row[0].tryNumber %}
+                    {% set quiz = row[0].quiz.id %}
+                    {% set id_num = 1 %}
+                    <tr>
+                        <th scope="row">{{id_num}}</th>
+                        <td>{{row[0].user.name}}</td>
+                        <td>{{row[0].user.surname}}</td>
+                        <td>{{row[0].quiz.name}}</td>
+                        <td>{{tryNumber}}</td>
+                        <td>{{ row['sumPoints'] }}</td>
+                    </tr>
+                {% elseif user != row[0].user.id or quiz != row[0].quiz.id %}
+                    {% set id_num = id_num + 1 %}
+                    {% set user = row[0].user.id %}
+                    {% set tryNumber = row[0].tryNumber %}
+                    {% set quiz = row[0].quiz.id %}
+                    <tr>
+                        <th scope="row">{{id_num}}</th>
+                        <td>{{row[0].user.name}}</td>
+                        <td>{{row[0].user.surname}}</td>
+                        <td>{{row[0].quiz.name}}</td>
+                        <td>{{tryNumber}}</td>
+                        <td>{{ row['sumPoints'] }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

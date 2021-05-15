@@ -1,0 +1,91 @@
+AppBundle\Entity\UserAnswer:
+    type: entity
+    table: user_answers
+    repositoryClass: AppBundle\Entity\Repository\UserAnswerRepository
+    indexes:
+        FK_user_answer_answers:
+            columns:
+                - answer_id
+        FK_user_answer_users:
+            columns:
+                - user_id
+        quiz_id:
+            columns:
+                - quiz_id
+        FK_user_answers_questions:
+            columns:
+                - question_id
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        selection:
+            type: string
+            nullable: true
+            length: 255
+            options:
+                fixed: false
+                default: null
+            column: selection
+        tryNumber:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '1'
+            column: try_number
+        points:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: points
+    manyToOne:
+        answer:
+            targetEntity: Answer
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                answer_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        user:
+            targetEntity: User
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                user_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        question:
+            targetEntity: Question
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                question_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        quiz:
+            targetEntity: Quiz
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                quiz_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

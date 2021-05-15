@@ -1,0 +1,179 @@
+{% extends 'layout.html.twig' %}
+{% block stylesheets %}
+    <style>
+        body {
+            background: rgb(44,52,59);
+        }
+        #dalej {
+            margin-left: 75%;
+            margin-bottom: 10px;
+        }
+        .board {
+            position: relative;
+        }
+        .board-column {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 30%;
+            margin: 10px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            z-index: 1;
+        }
+        .board-column.muuri-item-releasing {
+            z-index: 2;
+        }
+        .board-column.muuri-item-dragging {
+            z-index: 3;
+            cursor: move;
+        }
+        .board-column-header {
+            position: relative;
+            height: 50px;
+            line-height: 50px;
+            overflow: hidden;
+            padding: 0 20px;
+            text-align: center;
+            background: #333;
+            color: #fff;
+            border-radius: 3px 3px 0 0;
+        }
+        .board-column.options .board-column-header {
+            background: #4A9FF9;
+        }
+        .board-column.true .board-column-header {
+            background: #2ac06d;
+        }
+        .board-column.false .board-column-header {
+            background: orangered;
+        }
+        .board-column-content {
+            position: relative;
+            border: 10px solid transparent;
+            min-height: 95px;
+        }
+        .board-item {
+            position: absolute;
+            width: 100%;
+            margin: 5px 0;
+        }
+        .board-item.muuri-item-releasing {
+            z-index: 9998;
+        }
+        .board-item.muuri-item-dragging {
+            z-index: 9999;
+            cursor: move;
+        }
+        .board-item.muuri-item-hidden {
+            z-index: 0;
+        }
+        .board-item-content {
+            position: relative;
+            padding: 20px;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 17px;
+            cursor: pointer;
+            -webkit-box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+            box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+        }
+        .quiz-options {
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .quiz-correct {
+            width: 40%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .quiz-wrong {
+            width: 40%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .container-a {
+            width: 800px;
+            margin: 0 auto;
+            padding: 50px;
+        }
+        .p__button {
+            background: #B0B0B0;
+            padding: 4px 14px;
+            border-radius: 10px;
+            border: 2px solid black;
+            color: black;
+        }
+        .p__button:hover, p__button:active, p__button:focus {
+            background: #2c343b;
+            padding: 4px 14px;
+            border-radius: 10px;
+            border: 2px solid #B0B0B0;
+            color: #B0B0B0;
+        }
+    </style>
+{% endblock %}
+{% block navs %}
+    <div class="col-10 d-flex justify-content-end">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link " id="home-tab"  href="{{ path('front', {"link":"home"}) }}" role="tab"
+                   aria-controls="home" aria-selected="true">Strona główna</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="quiz-tab" href="{{ path('front', {"link":"quiz"}) }}" role="tab"
+                   aria-controls="quiz" aria-selected="false">Quizy</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="ranking-tab"  href="{{ path('front', {"link":"ranking"}) }}" role="tab"
+                   aria-controls="ranking" aria-selected="false">Rankingi</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" id="news-tab" href="{{ path('front', {"link":"news"}) }}" role="tab"
+                   aria-controls="news" aria-selected="false">Artykuły</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="logout-tab" data-toggle="tab" href="{{ path('front', {"link":"logout"}) }}" role="tab"
+                   aria-controls="logout" aria-selected="false">Wyloguj się</a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="tm-bg-white-translucent container-a">
+        <div class="row">
+            <div class="col-12">
+                {{ form_start(form) }}
+                {{ form_errors(form) }}
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.title) }}
+                    </div>
+                    <div class="col-10">
+                        {{ form_widget(form.title) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.body) }}
+                    </div>
+                    <div class="col-10">
+                        {{ form_widget(form.body) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">
+                        {{ form_label(form.submit) }}
+                    </div>
+                    <div class="col-10">
+                        {{ form_widget(form.submit) }}
+                    </div>
+                </div>
+                {{ form_rest(form) }}
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

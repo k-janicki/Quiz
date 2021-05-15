@@ -1,0 +1,22 @@
+{% extends 'base.html.twig'  %}
+{% block body %}
+{% if error %}
+    <div>{{ error.messageKey }}</div>
+{% endif %}
+
+<form action="{{ path('login') }}" method="post" style="text-align: center; border-color: #2ac06d;padding-left: 40%;padding-right: 40%">
+    <div style="background: #D9E7F8;padding-top: 5px;padding-bottom: 15px;border-radius: 20px;">
+        <p style="font-size: 16px;font-weight: bolder;color:#4A90E2 ">
+            Zaloguj sie
+        </p>
+        <p>
+            <input type="text" id="username" name="_username" value="{{ last_username }}" placeholder="Username"/>
+        </p>
+        <p>
+            <input type="password" id="password" name="_password" placeholder="Password"/>
+        </p>
+        <button type="submit" style="font-size: 16px;font-weight: bolder;color:#D9E7F8; background-color: #4A90E2;border: none;text-decoration: none;padding: 15px;border-radius: 5px">login</button>
+    </div>
+
+</form>
+{% endblock %}
