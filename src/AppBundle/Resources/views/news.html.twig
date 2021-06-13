@@ -1,28 +1,18 @@
-<style>
-    .p__button {
-        background: #B0B0B0;
-        padding: 4px 14px;
-        border-radius: 10px;
-        border: 2px solid black;
-        color: black;
-    }
-    .p__button:hover, p__button:active, p__button:focus {
-        background: #2c343b;
-        padding: 4px 14px;
-        border-radius: 10px;
-        border: 2px solid #B0B0B0;
-        color: #B0B0B0;
-    }
-</style>
 <div class="row">
-    <div class="col-12" style="margin-bottom: 35px;">
+    <div class="col-8 offset-2 mb-4 p-0" style="">
         <a style="width: 140px;height: 37px;" class="p__button" href="{{ path('news_new') }}">Utwórz artykuł</a>
     </div>
     {% for article in articles %}
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 tm-3-col-textbox">
-            <div class="text-xs-center tm-textbox tm-textbox-padding tm-bg-white-translucent tm-3-col-textbox-inner">
-                <h2 class="tm-text-title">{{ article.title }}</h2>
-                <a class="p__button" href="{{ path('news', {id:article.id}) }}">Szczegóły</a>
+        <div class="col-8 offset-2 news__container mb-5">
+            <div>
+                <h2>
+                    {{ article.title }}
+                </h2>
+            </div>
+            <div>
+                <div>
+                    {{ article.body|raw }}
+                </div>
             </div>
         </div>
     {% endfor %}

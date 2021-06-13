@@ -53,11 +53,11 @@ class QuizController extends Controller
                     $correct[$index] = $answer->getId();
                 }
             }
-            $tryNumber = $ua->getQuestionTryNumber($user,$quiz,$question)['tryNumber'];
-            if (!$tryNumber) {
+            $tryNumber = $ua->getQuestionTryNumber($user,$quiz,$question);
+            if (empty($tryNumber)) {
                 $tryNumber = 1;
             } else {
-                $tryNumber++;
+                $tryNumber['tryNumber'] = $tryNumber['tryNumber']++;
             }
 
             $userAnswer = new UserAnswer();
@@ -88,19 +88,6 @@ class QuizController extends Controller
             'questions' => $questions,
         ]);
     }
-
-//    public function quizAjaxAction(Request $request)
-//    {
-//        print_r($_POST);
-//        $data = ($request->get('data'));
-//        dump($_POST['selection']);
-//        dump($_POST['data']);
-//        dump($data);
-//        dump($request->request->get('data'));
-//        dump($request->get('selection'));
-//        return new JsonResponse(['succes'=>true]);
-//
-//    }
 
     public function testAction()
     {

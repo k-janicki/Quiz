@@ -1,28 +1,28 @@
-    <div class="row">
-        <div class="col-md-2 offset-2">
-            <a href="{{ path('create_quiz') }}" class="btn btn-success">Utwórz nowy quiz</a>
-        </div>
+<div class="row mt-3 mb-4">
+    <div class="col-8 offset-2 p-0">
+        <a style="width: 140px;height: 37px;" class="p__button"  href="{{ path('create_quiz') }}">Utwórz nowy quiz</a>
     </div>
+</div>
 {% if quizzes is not null %}
     {% for quiz in quizzes %}
-        <a href="{{path('quiz', {id: quiz.id})}}">
-            <div class="row">
-                <div class="col-md-8 offset-2">
-                    <div class="tm-flex"  style="min-height: 200px">
-                        <div class="tm-bg-white-translucent text-xs-left tm-textbox tm-textbox-padding tm-white-box-margin-b">
-                            <h2 style='position: relative' class="tm-text-title">{{ quiz.name }}
-                                {% if app.user.role == 'ROLE_USER' %}
-                                {% if quiz.status == 1 %}
-                                <span style="position:absolute;right: -75px;font-size:135px">&raquo;</span></h2>
-                            <p class="tm-text">{{ quiz.description }}</p>
+        <a href="{{ path('quiz', {id: quiz.id}) }}" class="quiz__link">
+            <div class="row mb-2">
+                <div class="col-md-8 offset-2 quiz__container">
+                    <div class="d-flex flex-column ">
+                        <h2 style='' class="">{{ quiz.name }}</h2>
+                        {% if app.user.role == 'ROLE_USER' %}
+                            {% if quiz.status == 1 %}
+                                <div class="d-flex justify-content-start align-items-center">
+                                    <p class="m-0 pr-3">{{ quiz.description }}</p>
+                                </div>
                             {% else %}
-                                <p class="tm-text">Brak dostępu</p>
+                                <p class="">Brak dostępu</p>
                             {% endif %}
-                            {% else %}
-                                <span style="position:absolute;right: -75px;font-size:135px">&raquo;</span></h2>
-                                <p class="tm-text">{{ quiz.description }}</p>
-                            {% endif %}
-                        </div>
+                        {% else %}
+                            <div class="d-flex justify-content-start align-items-center text-decoration-none">
+                                <p class="m-0 pr-3">{{ quiz.description }}</p>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

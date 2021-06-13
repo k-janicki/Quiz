@@ -19,11 +19,11 @@ class NewsController extends Controller
                 'articles' => $articles
             ]);
         }
-        $article = $this->getDoctrine()->getRepository(News::class)->findOneBy(['id' => $id]);
-
-        return $this->render('@App/news_show.html.twig', [
-            'article' => $article
-        ]);
+//        $article = $this->getDoctrine()->getRepository(News::class)->findOneBy(['id' => $id]);
+//
+//        return $this->render('@App/news_show.html.twig', [
+//            'article' => $article
+//        ]);
     }
 
     public function newAction(Request $request)
@@ -34,6 +34,24 @@ class NewsController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+            $body = $data->getBody();
+            $start = strpos($body,'data:image/png;base64,');
+            $startLength = strlen('data:image/png;base64,');
+            if ($start) {
+                $path = '../web/upload/';
+                $start = $start + $startLength;
+                $end = "data-filename";
+                $endPos = strpos($body,' data-filename');
+                $endStringLength = $endPos - strlen(substr($body, $endPos)) - $startLength - 2;
+                $imgString = $this->getStringBetween($body, 'src="data:image/png;base64,', '"');
+                $imgReplaceString = $this->getStringBetween($body, 'src="data:image/png;base64,', '">');
+                $img = base64_decode($imgString);
+                $str = substr($body, $endPos);
+                $fileName = $this->generateRandomString().'.jpg';
+                $newBody = str_replace('src="data:image/png;base64,'.$imgReplaceString,"src='/upload/".$fileName."'" , $body);
+                file_put_contents($path.$fileName,$img);
+                $data->setBody($newBody);
+            }
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($data);
@@ -48,4 +66,18 @@ class NewsController extends Controller
             ]
         );
     }
+
+    private function getStringBetween($string, $start, $end){
+        $string = ' ' . $string;
+        $ini = strpos($string, $start);
+        if ($ini == 0) return '';
+        $ini += strlen($start);
+        $len = strpos($string, $end, $ini) - $ini;
+        return substr($string, $ini, $len);
+    }
+
+    private function generateRandomString($length = 10) {
+        return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
+    }
+
 }

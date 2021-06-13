@@ -16,7 +16,7 @@ class Role extends \Symfony\Component\Security\Core\Role\Role
     {
         parent::__construct($this->id);
     }
-    public function __toString()
+    public function __toString(): string
     {
        return (string) $this->id;
     }

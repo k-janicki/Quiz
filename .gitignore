@@ -15,3 +15,6 @@
 !var/SymfonyRequirements.php
 /vendor/
 /web/bundles/
+*.jpg
+web/upload/Dolphin.png
+web/uploadDolphin.png

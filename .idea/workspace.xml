@@ -5,18 +5,27 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e830fe48-2394-4a75-a901-301757b37172" name="Default Changelist" comment="" />
-    <list id="219251f6-9ead-4c60-8f24-d5ffd19f0806" name="nie commitowac" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="e830fe48-2394-4a75-a901-301757b37172" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/Quiz.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Quiz.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/commandlinetools/Symfony_01_12_2019__15_58_s.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/commandlinetools/Symfony_30_11_2020__21_05_s.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/commandlinetools/Symfony_30_11_2020__21_05_s.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/symfony_requirements" beforeDir="false" afterPath="$PROJECT_DIR$/bin/symfony_requirements" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/var/SymfonyRequirements.php" beforeDir="false" afterPath="$PROJECT_DIR$/var/SymfonyRequirements.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/web/config.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/AppKernel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/AppKernel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Resources/views/layout.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/app/Resources/views/layout.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Resources/views/partials/styles.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/app/Resources/views/partials/styles.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/NewsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/NewsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Entity/Role.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Entity/Role.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/create_quiz.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/create_quiz.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/homepage.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/homepage.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/news.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/news.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/news_new.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/news_new.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/news_show.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/news_show.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/quizzes.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/quizzes.html.twig" afterDir="false" />
     </list>
+    <list id="219251f6-9ead-4c60-8f24-d5ffd19f0806" name="nie commitowac" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,25 +41,18 @@
   </component>
   <component name="PhpWorkspaceProjectConfiguration">
     <include_path>
-      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php70" />
       <path value="$PROJECT_DIR$/vendor/symfony/monolog-bundle" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
       <path value="$PROJECT_DIR$/vendor/psr/link" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
       <path value="$PROJECT_DIR$/vendor/psr/container" />
-      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php56" />
-      <path value="$PROJECT_DIR$/vendor/psr/simple-cache" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-apcu" />
       <path value="$PROJECT_DIR$/vendor/psr/log" />
       <path value="$PROJECT_DIR$/vendor/symfony/symfony" />
       <path value="$PROJECT_DIR$/vendor/symfony/phpunit-bridge" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-icu" />
-      <path value="$PROJECT_DIR$/vendor/sensiolabs/security-checker" />
-      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-util" />
       <path value="$PROJECT_DIR$/vendor/symfony/swiftmailer-bundle" />
       <path value="$PROJECT_DIR$/vendor/sensio/framework-extra-bundle" />
-      <path value="$PROJECT_DIR$/vendor/sensio/distribution-bundle" />
-      <path value="$PROJECT_DIR$/vendor/sensio/generator-bundle" />
       <path value="$PROJECT_DIR$/vendor/monolog/monolog" />
       <path value="$PROJECT_DIR$/vendor/incenteev/composer-parameter-handler" />
       <path value="$PROJECT_DIR$/vendor/composer" />
@@ -63,17 +65,32 @@
       <path value="$PROJECT_DIR$/vendor/doctrine/annotations" />
       <path value="$PROJECT_DIR$/vendor/doctrine/lexer" />
       <path value="$PROJECT_DIR$/vendor/doctrine/dbal" />
-      <path value="$PROJECT_DIR$/vendor/jdorn/sql-formatter" />
       <path value="$PROJECT_DIR$/vendor/doctrine/inflector" />
-      <path value="$PROJECT_DIR$/vendor/paragonie/random_compat" />
-      <path value="$PROJECT_DIR$/vendor/doctrine/doctrine-cache-bundle" />
       <path value="$PROJECT_DIR$/vendor/doctrine/doctrine-bundle" />
       <path value="$PROJECT_DIR$/vendor/psr/cache" />
-      <path value="$PROJECT_DIR$/vendor/fig/link-util" />
       <path value="$PROJECT_DIR$/vendor/doctrine/cache" />
+      <path value="$PROJECT_DIR$/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php72" />
+      <path value="$PROJECT_DIR$/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php73" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-iconv" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/deprecations" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/event-manager" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/persistence" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-code" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-eventmanager" />
+      <path value="$PROJECT_DIR$/vendor/friendsofphp/proxy-manager-lts" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-zendframework-bridge" />
+      <path value="$PROJECT_DIR$/vendor/symfony/contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php81" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/sql-formatter" />
     </include_path>
   </component>
   <component name="ProjectId" id="1UNxBchYZB8mItawNLbFy5igt5D" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -81,10 +98,10 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/AppBundle/Resources/public/js" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/bin/console" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="php.override.implement.member.chooser.php.doc" value="NONE" />
-    <property name="settings.editor.selected.configurable" value="Symfony2.SettingsForm" />
+    <property name="settings.editor.selected.configurable" value="reference.webide.settings.project.settings.php.zend.framework.tool" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
@@ -97,9 +114,12 @@
     <option name="myCommands">
       <command value="s generate:controller" />
       <command value="s a:d" />
-      <command value="s cache:clear --no-warmup -e prod" />
-      <command value="s cache:clear --no-warmup" />
       <command value="s a:i" />
+      <command value="s a:w" />
+      <command value="s cache:clear --no-warmup" />
+      <command value="s cache:clear --no-warmup -e prod" />
+      <command value="s cache:clear --no-warmup -env=prod" />
+      <command value="s cache:clear --no-warmup --env=prod" />
     </option>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -124,6 +144,12 @@
       <workItem from="1607182444864" duration="574000" />
       <workItem from="1610643128373" duration="696000" />
       <workItem from="1619346302603" duration="606000" />
+      <workItem from="1621078128901" duration="277000" />
+      <workItem from="1621078440749" duration="4000" />
+      <workItem from="1623349481036" duration="1506000" />
+      <workItem from="1623355429091" duration="3781000" />
+      <workItem from="1623359938609" duration="314000" />
+      <workItem from="1623510408546" duration="13139000" />
     </task>
     <task id="LOCAL-00001" summary="Poprawki:&#10;- redirect do logowania na froncie&#10;- podpiecie bootstrapa 4 i dziedziczenie w widokach&#10;- częściowa przeróbka na bootstrap 4">
       <created>1606778195246</created>
@@ -179,98 +205,68 @@
     <option name="LAST_COMMIT_MESSAGE" value="Obsługa dodawania quizu, poprawki do widoków dodawania postu i quizu" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="540" y="175" key="#CLI_Interpreters" timestamp="1606766723523">
+    <state x="540" y="175" key="#CLI_Interpreters" timestamp="1623355052827">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="540" y="175" key="#CLI_Interpreters/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606766723523" />
-    <state x="765" y="202" key="#com.intellij.ide.util.MemberChooser" timestamp="1607130829983">
+    <state x="540" y="175" key="#CLI_Interpreters/0.0.1920.1040@0.0.1920.1040" timestamp="1623355052827" />
+    <state x="414" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1623511385526">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="765" y="202" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607130829983" />
-    <state x="689" y="310" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1607040701411">
+    <state x="414" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623511385526" />
+    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1623357823764">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="689" y="310" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607040701411" />
-    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1607131462563">
+    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1623357823764" />
+    <state x="740" y="261" key="FileChooserDialogImpl" timestamp="1623357011574">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="690" y="275" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607131462563" />
-    <state x="498" y="57" key="CommitChangelistDialog2" timestamp="1607133110963">
+    <state x="740" y="261" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1623357011574" />
+    <state x="725" y="389" key="FrameworkEditDialogDimensionKey" timestamp="1623357044396">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="498" y="57" key="CommitChangelistDialog2/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607133110963" />
-    <state x="92" y="92" width="1736" height="856" key="DiffContextDialog" timestamp="1607121495042">
+    <state x="725" y="389" key="FrameworkEditDialogDimensionKey/0.0.1920.1040@0.0.1920.1040" timestamp="1623357044396" />
+    <state width="1877" height="278" key="GridCell.Tab.0.bottom" timestamp="1623536978457">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="92" y="92" width="1736" height="856" key="DiffContextDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607121495042" />
-    <state x="740" y="261" key="FileChooserDialogImpl" timestamp="1606766732936">
+    <state width="1877" height="278" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623536978457" />
+    <state width="1877" height="278" key="GridCell.Tab.0.center" timestamp="1623536978457">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="740" y="261" key="FileChooserDialogImpl/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606766732936" />
-    <state x="741" y="389" key="FrameworkEditDialogDimensionKey" timestamp="1606766705777">
+    <state width="1877" height="278" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623536978457" />
+    <state width="1877" height="278" key="GridCell.Tab.0.left" timestamp="1623536978456">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="741" y="389" key="FrameworkEditDialogDimensionKey/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606766705777" />
-    <state width="1877" height="278" key="GridCell.Tab.0.bottom" timestamp="1607133207397">
+    <state width="1877" height="278" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623536978456" />
+    <state width="1877" height="278" key="GridCell.Tab.0.right" timestamp="1623536978457">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.bottom/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607133207397" />
-    <state width="1877" height="278" key="GridCell.Tab.0.center" timestamp="1607133207397">
+    <state width="1877" height="278" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623536978457" />
+    <state x="246" y="171" key="SettingsEditor" timestamp="1623357045213">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.center/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607133207397" />
-    <state width="1877" height="278" key="GridCell.Tab.0.left" timestamp="1607133207397">
+    <state x="461" y="165" key="SettingsEditor/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1621078392064" />
+    <state x="246" y="171" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1623357045213" />
+    <state x="764" y="422" width="409" height="195" key="SymfonyPathDialog" timestamp="1623357013891">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.left/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607133207397" />
-    <state width="1877" height="278" key="GridCell.Tab.0.right" timestamp="1607133207397">
+    <state x="764" y="422" width="409" height="195" key="SymfonyPathDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1623357013891" />
+    <state x="777" y="434" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1623529006407">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="278" key="GridCell.Tab.0.right/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607133207397" />
-    <state x="706" y="243" key="NewPhpClassDialog" timestamp="1607130205510">
+    <state x="777" y="434" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623529006407" />
+    <state x="667" y="253" width="1107" height="658" key="find.popup" timestamp="1623515627461">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="706" y="243" key="NewPhpClassDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607130205510" />
-    <state x="461" y="165" key="SettingsEditor" timestamp="1606766856578">
+    <state x="667" y="253" width="1107" height="658" key="find.popup/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623515627461" />
+    <state x="667" y="253" width="585" height="534" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1623359410927" />
+    <state x="616" y="240" width="672" height="677" key="run.anything.popup" timestamp="1623529425020">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="461" y="165" key="SettingsEditor/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606766856578" />
-    <state x="764" y="422" key="SymfonyPathDialog" timestamp="1606766735232">
+    <state x="616" y="240" width="672" height="677" key="run.anything.popup/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1623529425020" />
+    <state x="616" y="240" width="672" height="677" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1623358992478" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1623355575319">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="764" y="422" key="SymfonyPathDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606766735232" />
-    <state x="821" y="217" key="VCS.ChangeListViewerDialog" timestamp="1606777019800">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="821" y="217" key="VCS.ChangeListViewerDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606777019800" />
-    <state x="790" y="389" key="VCS.EditChangelistDialog" timestamp="1607042464225">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="790" y="389" key="VCS.EditChangelistDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607042464225" />
-    <state x="92" y="92" width="1736" height="856" key="VCS.FileHistoryDialog" timestamp="1606777743056">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="92" y="92" width="1736" height="856" key="VCS.FileHistoryDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606777743056" />
-    <state x="552" y="253" key="Vcs.Push.Dialog.v2" timestamp="1607133119486">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="552" y="253" key="Vcs.Push.Dialog.v2/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607133119486" />
-    <state x="92" y="92" width="1736" height="856" key="com.intellij.history.integration.ui.views.SelectionHistoryDialog" timestamp="1606777743056">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="92" y="92" width="1736" height="856" key="com.intellij.history.integration.ui.views.SelectionHistoryDialog/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1606777743056" />
-    <state x="777" y="434" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1607121095618">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="777" y="434" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607121095618" />
-    <state x="667" y="119" width="585" height="801" key="find.popup" timestamp="1610643189626">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="667" y="119" width="585" height="801" key="find.popup/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607128260841" />
-    <state x="667" y="119" width="585" height="801" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1610643189626" />
-    <state x="616" y="240" width="672" height="677" key="run.anything.popup" timestamp="1607129301178">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="616" y="240" width="672" height="677" key="run.anything.popup/0.0.1920.1040/-1920.0.1920.1040@0.0.1920.1040" timestamp="1607129301178" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1623355575319" />
   </component>
 </project>
