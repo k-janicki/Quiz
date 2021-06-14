@@ -27,17 +27,16 @@ class QuizController extends Controller
 
     public function frontAction(Request $request)
     {
-//        apcu_clear_cache();
         $link = $request->get('link') ? $request->get('link') : 'home';
 
-        if ($this->client->get('view')) {
+//        if ($this->client->get('view')) {
 //            $view = $this->client->get('view');
 //            return new Response($view);
-        }
+//        }
         $view = $this->renderView('layout.html.twig', [
             'link'    => $link,
         ]);
-        $this->client->set('view', $view);
+//        $this->client->set('view', $view);
 
         return new Response($view);
     }
@@ -46,14 +45,14 @@ class QuizController extends Controller
     {
         $quizzes = $this->getDoctrine()->getRepository(Quiz::class)->getActiveQuizzes();
 
-        if ($this->client->get('quizList')) {
+//        if ($this->client->get('quizList')) {
 //            $view = $this->client->get('quizList');
 //            return new Response($view);
-        }
+//        }
         $view = $this->renderView('@App/quizzes.html.twig', [
             'quizzes'    => $quizzes,
         ]);
-        $this->client->set('view', $view);
+//        $this->client->set('view', $view);
 
         return new Response($view);
     }
@@ -62,14 +61,14 @@ class QuizController extends Controller
     {
         $ranking = $this->getDoctrine()->getRepository(UserAnswer::class)->getPointsForTry();
 
-        if ($this->client->get('ranking')) {
+//        if ($this->client->get('ranking')) {
 //            $view = $this->client->get('ranking');
 //            return new Response($view);
-        }
+//        }
         $view = $this->renderView('@App/ranking.html.twig', [
             'ranking'    => $ranking,
         ]);
-        $this->client->set('ranking', $view);
+//        $this->client->set('ranking', $view);
 
         return new Response($view);
     }

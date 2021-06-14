@@ -2,6 +2,8 @@
 
 namespace AppBundle\Entity\Repository;
 
+use Doctrine\Common\Cache\ApcCache;
+use Doctrine\Common\Cache\ApcuCache;
 use Doctrine\Common\Cache\RedisCache;
 use Doctrine\ORM\Cache;
 
@@ -15,6 +17,7 @@ class UserAnswerRepository extends \Doctrine\ORM\EntityRepository
 {
     public function getQuestionTryNumber($user,$quiz,$question)
     {
+
         $qb = $this->createQueryBuilder('ua');
         $query = $qb->select('ua.tryNumber')
             ->where('ua.user = :user')
@@ -25,11 +28,18 @@ class UserAnswerRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('question', $question)
             ->orderBy('ua.id', 'DESC')
             ->setMaxResults(1);
-        return $query->getQuery()->getOneOrNullResult();
+        $result = $qb->getQuery()->getResult();
+
+        return $result;
     }
 
     public function getPointsForTry()
     {
+        $client = new ApcuCache();
+
+        if ($client->contains('userAnswers')) {
+            return $client->fetch('userAnswers');
+        }
         $qb = $this->createQueryBuilder('ua');
         $sub = $qb->select('(ua.user) as user, max(ua.tryNumber) as maxNumber')
             ->groupBy('ua.user');
@@ -40,6 +50,9 @@ class UserAnswerRepository extends \Doctrine\ORM\EntityRepository
             ->addGroupBy('ua.quiz')
             ->orderBy('sumPoints', 'DESC')
             ->addOrderBy('ua.tryNumber', 'DESC');
+        $result = $qb->getQuery()->getResult();
+        $client->save('userAnswers', $result);
+
         return $query->getQuery()->getResult();
     }
 }

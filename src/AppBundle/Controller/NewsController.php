@@ -7,23 +7,33 @@ use AppBundle\Entity\Repository\NewsRepository;
 use AppBundle\Form\NewsType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Predis;
 
 class NewsController extends Controller
 {
+    private $client;
+
+    public function __construct()
+    {
+        $this->client = new Predis\Client();
+    }
+
     public function indexAction($id = null)
     {
         if (null === $id) {
             $articles = $this->getDoctrine()->getRepository(News::class)->findAll();
-
-            return $this->render('@App/news.html.twig', [
-                'articles' => $articles
+            if ($this->client->get('articles')) {
+                $view = $this->client->get('articles');
+                return new Response($view);
+            }
+            $view = $this->renderView('@App/news.html.twig', [
+                'articles' => $articles,
             ]);
+            $this->client->set('view', $view);
+
+            return new Response($view);
         }
-//        $article = $this->getDoctrine()->getRepository(News::class)->findOneBy(['id' => $id]);
-//
-//        return $this->render('@App/news_show.html.twig', [
-//            'article' => $article
-//        ]);
     }
 
     public function newAction(Request $request)
@@ -35,21 +45,22 @@ class NewsController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $body = $data->getBody();
-            $start = strpos($body,'data:image/png;base64,');
+            $start = strpos($body, 'data:image/png;base64,');
             $startLength = strlen('data:image/png;base64,');
             if ($start) {
                 $path = '../web/upload/';
                 $start = $start + $startLength;
                 $end = "data-filename";
-                $endPos = strpos($body,' data-filename');
+                $endPos = strpos($body, ' data-filename');
                 $endStringLength = $endPos - strlen(substr($body, $endPos)) - $startLength - 2;
                 $imgString = $this->getStringBetween($body, 'src="data:image/png;base64,', '"');
                 $imgReplaceString = $this->getStringBetween($body, 'src="data:image/png;base64,', '">');
                 $img = base64_decode($imgString);
                 $str = substr($body, $endPos);
-                $fileName = $this->generateRandomString().'.jpg';
-                $newBody = str_replace('src="data:image/png;base64,'.$imgReplaceString,"src='/upload/".$fileName."'" , $body);
-                file_put_contents($path.$fileName,$img);
+                $fileName = $this->generateRandomString() . '.jpg';
+                $newBody = str_replace('src="data:image/png;base64,' . $imgReplaceString, "src='/upload/" . $fileName . "'", $body);
+                file_put_contents($path . $fileName, $img);
+
                 $data->setBody($newBody);
             }
 
@@ -67,7 +78,8 @@ class NewsController extends Controller
         );
     }
 
-    private function getStringBetween($string, $start, $end){
+    private function getStringBetween($string, $start, $end)
+    {
         $string = ' ' . $string;
         $ini = strpos($string, $start);
         if ($ini == 0) return '';
@@ -76,8 +88,9 @@ class NewsController extends Controller
         return substr($string, $ini, $len);
     }
 
-    private function generateRandomString($length = 10) {
-        return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
+    private function generateRandomString($length = 10)
+    {
+        return substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);
     }
 
 }

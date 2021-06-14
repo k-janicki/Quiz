@@ -3,7 +3,7 @@
         <a style="width: 140px;height: 37px;" class="p__button"  href="{{ path('create_quiz') }}">Utwórz nowy quiz</a>
     </div>
 </div>
-{% if quizzes is not null %}
+{% if quizzes is defined and quizzes is not null %}
     {% for quiz in quizzes %}
         <a href="{{ path('quiz', {id: quiz.id}) }}" class="quiz__link">
             <div class="row mb-2">

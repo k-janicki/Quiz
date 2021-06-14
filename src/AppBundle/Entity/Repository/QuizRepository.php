@@ -17,10 +17,9 @@ class QuizRepository extends \Doctrine\ORM\EntityRepository
 {
     public function getActiveQuizzes()
     {
-        $client = new ApcCache();
+        $client = new ApcuCache();
 
         if ($client->contains('activeQuizzes')) {
-            dump($client->fetch('activeQuizzes'));
             return $client->fetch('activeQuizzes');
         }
         $qb = $this->createQueryBuilder('q');
@@ -28,7 +27,6 @@ class QuizRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('CURRENT_TIMESTAMP() BETWEEN q.dateStart AND q.dateEnd');
         $result = $qb->getQuery()->getResult();
         $client->save('activeQuizzes', $result);
-dump($result);
         return $result;
     }
 }
