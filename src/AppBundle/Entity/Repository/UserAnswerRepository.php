@@ -2,6 +2,9 @@
 
 namespace AppBundle\Entity\Repository;
 
+use Doctrine\Common\Cache\RedisCache;
+use Doctrine\ORM\Cache;
+
 /**
  * UserAnswerRepository
  *

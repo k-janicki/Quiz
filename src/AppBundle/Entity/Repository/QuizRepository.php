@@ -2,6 +2,11 @@
 
 namespace AppBundle\Entity\Repository;
 
+use Doctrine\Common\Cache\ApcCache;
+use Doctrine\Common\Cache\ApcuCache;
+use Doctrine\ORM\Cache;
+use Predis;
+
 /**
  * QuizRepository
  *
@@ -12,10 +17,18 @@ class QuizRepository extends \Doctrine\ORM\EntityRepository
 {
     public function getActiveQuizzes()
     {
+        $client = new ApcCache();
+
+        if ($client->contains('activeQuizzes')) {
+            dump($client->fetch('activeQuizzes'));
+            return $client->fetch('activeQuizzes');
+        }
         $qb = $this->createQueryBuilder('q');
         $qb -> where('q.status = 1')
             ->andWhere('CURRENT_TIMESTAMP() BETWEEN q.dateStart AND q.dateEnd');
-
-        return $qb->getQuery()->getResult();
+        $result = $qb->getQuery()->getResult();
+        $client->save('activeQuizzes', $result);
+dump($result);
+        return $result;
     }
 }

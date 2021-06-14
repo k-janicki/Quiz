@@ -10,23 +10,70 @@ use AppBundle\Form\AnswerType;
 use AppBundle\Form\QuizType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Predis;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Polyfill\Apcu\Apcu;
 
 //use Symfony\Component\HttpFoundation\JsonResponse;
 
 class QuizController extends Controller
 {
+    private $client;
+
+    public function __construct()
+    {
+        $this->client = new Predis\Client();
+    }
+
     public function frontAction(Request $request)
     {
-        $quizzes = $this->getDoctrine()->getRepository(Quiz::class)->getActiveQuizzes();
-        $ranking = $this->getDoctrine()->getRepository(UserAnswer::class)->getPointsForTry();
+//        apcu_clear_cache();
         $link = $request->get('link') ? $request->get('link') : 'home';
 
-        return $this->render('layout.html.twig', [
-            'quizzes' => $quizzes,
-            'ranking' => $ranking,
+        if ($this->client->get('view')) {
+//            $view = $this->client->get('view');
+//            return new Response($view);
+        }
+        $view = $this->renderView('layout.html.twig', [
             'link'    => $link,
         ]);
+        $this->client->set('view', $view);
+
+        return new Response($view);
     }
+
+    public function quizListAction()
+    {
+        $quizzes = $this->getDoctrine()->getRepository(Quiz::class)->getActiveQuizzes();
+
+        if ($this->client->get('quizList')) {
+//            $view = $this->client->get('quizList');
+//            return new Response($view);
+        }
+        $view = $this->renderView('@App/quizzes.html.twig', [
+            'quizzes'    => $quizzes,
+        ]);
+        $this->client->set('view', $view);
+
+        return new Response($view);
+    }
+
+    public function rankingListAction()
+    {
+        $ranking = $this->getDoctrine()->getRepository(UserAnswer::class)->getPointsForTry();
+
+        if ($this->client->get('ranking')) {
+//            $view = $this->client->get('ranking');
+//            return new Response($view);
+        }
+        $view = $this->renderView('@App/ranking.html.twig', [
+            'ranking'    => $ranking,
+        ]);
+        $this->client->set('ranking', $view);
+
+        return new Response($view);
+    }
+
 
     public function quizAction(Request $request, $id)
     {

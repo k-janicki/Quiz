@@ -1,0 +1,32 @@
+doctrine:
+  dbal:
+    default_connection: default
+    connections:
+      default:
+        dbname: '%env(DATABASE_NAME)%'
+        user: '%env(DATABASE_USER)%'
+        password: '%env(DATABASE_PASSWORD)%'
+        host: '%env(DATABASE_HOST)%'
+        driver:  '%env(DATABASE_DRIVER)%'
+
+  orm:
+    auto_generate_proxy_classes: true
+    naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+    auto_mapping: true
+    mappings:
+      App:
+        is_bundle: false
+        type: annotation
+        dir: '%kernel.project_dir%/src/Entity'
+        prefix: 'App\Entity'
+        alias: App
+
+    metadata_cache_driver: ~
+
+    query_cache_driver:
+      type: pool
+      pool: doctrine.system_cache_pool
+
+    result_cache_driver:
+      type: pool
+      pool: doctrine.result_cache_pool

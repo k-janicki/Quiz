@@ -1,6 +1,8 @@
 AppBundle\Entity\Quiz:
     type: entity
     table: quizes
+    cache:
+        usage: READ_ONLY
     repositoryClass: AppBundle\Entity\Repository\QuizRepository
     id:
         id:

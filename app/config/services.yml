@@ -33,3 +33,7 @@ services:
     # AppBundle\Service\ExampleService:
     #     arguments:
     #         $someArgument: 'some_value'
+
+
+    snc_second_level_cache:
+        class: Symfony\Polyfill\Apcu\Apcu

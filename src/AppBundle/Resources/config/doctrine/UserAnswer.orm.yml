@@ -1,5 +1,7 @@
 AppBundle\Entity\UserAnswer:
     type: entity
+    cache:
+        usage: READ_ONLY
     table: user_answers
     repositoryClass: AppBundle\Entity\Repository\UserAnswerRepository
     indexes:

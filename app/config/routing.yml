@@ -37,3 +37,11 @@ news:
 news_new:
   path: /new/news
   defaults: {_controller: AppBundle\Controller\NewsController::newAction}
+
+quiz_list:
+  path: /quizlist
+  defaults: {_controller: AppBundle\Controller\QuizController::quizListAction}
+
+ranking_list:
+  path: /ranking
+  defaults: {_controller: AppBundle\Controller\QuizController::rankingListAction}
