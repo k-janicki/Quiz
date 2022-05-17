@@ -1,0 +1,44 @@
+AppBundle\Entity\DuelQuestion:
+    type: entity
+    table: duels_questions
+    indexes:
+        FK_duels_questions_duels:
+            columns:
+                - duel_id
+        FK_duels_questions_questions:
+            columns:
+                - question_id
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        questionIndex:
+            type: integer
+            nullable: true
+            options:
+                unsigned: false
+            column: question_index
+    manyToOne:
+        duel:
+            targetEntity: Duel
+            cascade: {  }
+            fetch: LAZY
+            inversedBy: questions
+            joinColumns:
+                duel_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        question:
+            targetEntity: Question
+            fetch: LAZY
+            joinColumns:
+                question_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

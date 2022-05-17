@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Duel;
 use AppBundle\Entity\News;
 use AppBundle\Entity\Repository\NewsRepository;
 use AppBundle\Form\NewsType;
@@ -19,11 +20,14 @@ class NewsController extends Controller
                 'articles' => $articles
             ]);
         }
-//        $article = $this->getDoctrine()->getRepository(News::class)->findOneBy(['id' => $id]);
-//
-//        return $this->render('@App/news_show.html.twig', [
-//            'article' => $article
-//        ]);
+
+
+
+        $article = $this->getDoctrine()->getRepository(News::class)->findOneBy(['id' => $id]);
+
+        return $this->render('@App/news_show.html.twig', [
+            'article' => $article
+        ]);
     }
 
     public function newAction(Request $request)

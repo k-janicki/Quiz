@@ -107,12 +107,12 @@
     <form id="quiz-form" method="post">
         <input type="hidden" name="option" >
         <input type="hidden" name="current" value="{{ current }}" >
-        <input type="hidden" name="question" value="{{ questions[current].id }}" >
+        <input type="hidden" name="question" value="{{ questions[current].question.id }}" >
         <div class="board">
             <div class="board-column options quiz-options">
-                <div class="board-column-header">{{questions[current].text}}</div>
+                <div class="board-column-header">{{ questions[current].question.text}}</div>
                 <div class="board-column-content c-o">
-                    {% for answer in questions[current].answers %}
+                    {% for answer in questions[current].question.answers %}
                         <div id="{{ answer.id }}" class="board-item">
                             <div class="board-item-content">
                                 {{ answer.text }}

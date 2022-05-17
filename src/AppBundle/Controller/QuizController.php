@@ -3,21 +3,63 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Answer;
+use AppBundle\Entity\Duel;
+use AppBundle\Entity\DuelQuestion;
 use AppBundle\Entity\Question;
 use AppBundle\Entity\Quiz;
+use AppBundle\Entity\Repository\DuelRepository;
+use AppBundle\Entity\Repository\QuestionRepository;
+use AppBundle\Entity\Repository\QuizRepository;
+use AppBundle\Entity\Repository\UserAnswerRepository;
 use AppBundle\Entity\UserAnswer;
 use AppBundle\Form\AnswerType;
 use AppBundle\Form\QuizType;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Criteria;
+use http\Client\Curl\User;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 //use Symfony\Component\HttpFoundation\JsonResponse;
 
-class QuizController extends Controller
+class QuizController extends AbstractController
 {
+    /**
+     * @var DuelRepository
+     */
+    private DuelRepository $duelRepository;
+    /**
+     * @var QuizRepository
+     */
+    private QuizRepository $quizRepository;
+    /**
+     * @var QuestionRepository
+     */
+    private QuestionRepository $questionRepository;
+    /**
+     * @var UserAnswerRepository
+     */
+    private UserAnswerRepository $userAnswerRepository;
+
+    /**
+     * QuizController constructor.
+     * @param DuelRepository $duelRepository
+     * @param QuizRepository $quizRepository
+     * @param QuestionRepository $questionRepository
+     * @param UserAnswerRepository $userAnswerRepository
+     */
+    public function __construct(DuelRepository $duelRepository, QuizRepository $quizRepository, QuestionRepository $questionRepository, UserAnswerRepository $userAnswerRepository)
+    {
+        $this->duelRepository = $duelRepository;
+        $this->quizRepository = $quizRepository;
+        $this->questionRepository = $questionRepository;
+        $this->userAnswerRepository = $userAnswerRepository;
+    }
+
     public function frontAction(Request $request)
     {
-        $quizzes = $this->getDoctrine()->getRepository(Quiz::class)->getActiveQuizzes();
+        $quizzes = $this->quizRepository->getActiveQuizzes();
         $ranking = $this->getDoctrine()->getRepository(UserAnswer::class)->getPointsForTry();
         $link = $request->get('link') ? $request->get('link') : 'home';
 
@@ -33,18 +75,26 @@ class QuizController extends Controller
         $current = 0;
         if (null !== $request->get('current')) {
             $current = $request->get('current') + 1;
+        } else {
+            $user = $this->getUser();
+            $duel = $this->resolveDuel($id, $user);
+            $quiz = $this->quizRepository->findOneBy(['id' => $id]);
+
+            $questions = $duel->getQuestions()->toArray();
         }
-        $questions = $this->getDoctrine()->getRepository(Question::class)->findBy(['quiz' => $id]);
+
         $options = $request->get('option');
-        $user = $this->getUser();
         if (is_array($options))
         {
             $options = implode(',', $options);
         }
         if (null !== $options) {
-            $quiz = $this->getDoctrine()->getRepository(Quiz::class)->find($id);
-            $question = $this->getDoctrine()->getRepository(Question::class)->find($request->get('question'));
-            $ua = $this->getDoctrine()->getRepository(UserAnswer::class);
+            $quiz = $this->quizRepository->find($id);
+            $user = $this->getUser();
+            $duelCriteria = Duel::getDuelCriteriaForUser($quiz, $user);
+            $questions = $this->duelRepository->matching($duelCriteria)->first()->getQuestions()->toArray();
+            $question = $questions[$current-1]->getQuestion();
+
             $correct = [];
             $index = 0;
             foreach ($question->getAnswers() as $answer) {
@@ -53,7 +103,7 @@ class QuizController extends Controller
                     $correct[$index] = $answer->getId();
                 }
             }
-            $tryNumber = $ua->getQuestionTryNumber($user,$quiz,$question);
+            $tryNumber = $this->userAnswerRepository->getQuestionTryNumber($user,$quiz,$question);
             if (empty($tryNumber)) {
                 $tryNumber = 1;
             } else {
@@ -77,12 +127,11 @@ class QuizController extends Controller
             return $this->redirectToRoute('front');
         }
 
-        if ('sortable' === $questions[$current]->getType()) {
+        if ('sortable' === $questions[$current]->getQuestion()->getType()) {
             $template = '@App/quiz.html.twig';
         } else {
             $template = '@App/quiz2.html.twig';
         }
-
         return $this->render($template, [
             'current' => $current,
             'questions' => $questions,
@@ -120,5 +169,48 @@ class QuizController extends Controller
                 'form' => $form->createView(),
             ]
         );
+    }
+
+    public function resolveDuel($quizId, $user)
+    {
+        //sprawdzenie czy użytkownik jest w pojedynku
+        $quiz = $this->quizRepository->findOneBy(['id'=>$quizId]);
+        if (null === $quiz) {
+            return -1;
+        }
+        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
+        $duel = $this->duelRepository->matching($criteria)->first();
+        if (!$duel) {
+            //todo poprawic
+            $this->pairUsersForDuels($quiz, $duel, $user);
+//            return -1;
+        }
+
+        return $duel;
+    }
+
+    public function pairUsersForDuels(Quiz $quiz, $duel, $user)
+    {
+        if (false === $duel) {
+            //podepnij do wolnego, jeśli nie ma żadnych wolnych to wtedy wygeneruj
+            //todo: podpiecie
+            //tworzenie nowego
+            $questions = $this->questionRepository->generateQuestionsForQuiz(5, $quiz);
+
+            $duel = new Duel($quiz, $user, null);
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($duel);
+            $em->flush();
+            $duelQuestions = new ArrayCollection();
+            foreach ($questions as $questionIndex => $question) {
+                $duelQuestion = new DuelQuestion($duel, $question, $questionIndex);
+                $em->persist($duelQuestion);
+                $duelQuestions->add($duelQuestion);
+            }
+            $duel->setQuestions($duelQuestions);
+            $em->flush();
+        }
+
+        return $duel;
     }
 }

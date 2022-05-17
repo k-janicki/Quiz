@@ -46,11 +46,11 @@
                     <div class="col-12">
                         <input type="hidden" name="option">
                         <input type="hidden" name="current" value="{{ current }}">
-                        <input type="hidden" name="question" value="{{ questions[current].id }}">
-                        <div class="description">{{ questions[current].text }}</div>
+                        <input type="hidden" name="question" value="{{ questions[current].question.id }}">
+                        <div class="description">{{ questions[current].question.text }}</div>
                     </div>
                 </div>
-                {% for answer in questions[current].answers %}
+                {% for answer in questions[current].question.answers %}
                     <div class="row">
                         <div class="col-12">
                             <div class="checkbox">

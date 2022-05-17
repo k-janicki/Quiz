@@ -26,6 +26,7 @@
         "twig/twig": ">=2.0"
     },
     "require-dev": {
+        "symfony/maker-bundle": "1.39",
         "symfony/phpunit-bridge": ">=3.0"
     },
     "scripts": {

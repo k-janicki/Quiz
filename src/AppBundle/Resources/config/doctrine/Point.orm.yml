@@ -1,0 +1,56 @@
+AppBundle\Entity\Point:
+    type: entity
+    table: points
+    indexes:
+        FK_points_quizes:
+            columns:
+                - quiz_id
+        FK_points_users:
+            columns:
+                - user_id
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        pointsAmount:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: points_amount
+        timePointsAmount:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: time_points_amount
+    manyToOne:
+        quiz:
+            targetEntity: Quizes
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                quiz_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        user:
+            targetEntity: Users
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                user_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }
