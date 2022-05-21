@@ -18,6 +18,9 @@ AppBundle\Entity\Duel:
             generator:
                 strategy: IDENTITY
     fields:
+        version:
+            type: integer
+            version: true
         result:
             type: integer
             nullable: true

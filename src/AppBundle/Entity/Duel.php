@@ -14,6 +14,11 @@ class Duel
     const DUEL_PAIRED = 0;
     const DUEL_REMOVED = -1;
     const DUEL_PAIRING = 1;
+
+    /**
+     * @var integer
+     */
+    private $version;
     /**
      * @var integer
      */

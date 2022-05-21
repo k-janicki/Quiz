@@ -11,18 +11,22 @@ use AppBundle\Entity\Repository\DuelRepository;
 use AppBundle\Entity\Repository\QuestionRepository;
 use AppBundle\Entity\Repository\QuizRepository;
 use AppBundle\Entity\Repository\UserAnswerRepository;
+use AppBundle\Entity\User;
 use AppBundle\Entity\UserAnswer;
-use AppBundle\Form\AnswerType;
 use AppBundle\Form\QuizType;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
-use http\Client\Curl\User;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\LockMode;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 //use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ *
+ */
 class QuizController extends AbstractController
 {
     /**
@@ -41,24 +45,40 @@ class QuizController extends AbstractController
      * @var UserAnswerRepository
      */
     private UserAnswerRepository $userAnswerRepository;
+    /**
+     * @var EntityManagerInterface
+     */
+    private EntityManagerInterface $em;
 
     /**
      * QuizController constructor.
+     * @param EntityManagerInterface $em
      * @param DuelRepository $duelRepository
      * @param QuizRepository $quizRepository
      * @param QuestionRepository $questionRepository
      * @param UserAnswerRepository $userAnswerRepository
      */
-    public function __construct(DuelRepository $duelRepository, QuizRepository $quizRepository, QuestionRepository $questionRepository, UserAnswerRepository $userAnswerRepository)
+    public function __construct(EntityManagerInterface $em, DuelRepository $duelRepository, QuizRepository $quizRepository, QuestionRepository $questionRepository, UserAnswerRepository $userAnswerRepository)
     {
         $this->duelRepository = $duelRepository;
         $this->quizRepository = $quizRepository;
         $this->questionRepository = $questionRepository;
         $this->userAnswerRepository = $userAnswerRepository;
+        $this->em = $em;
     }
 
     public function frontAction(Request $request)
     {
+        $quiz = $this->quizRepository->find(1);
+        $user = $this->getUser();
+        $tryIndex = 0;
+        do {
+            $returned = $this->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
+            $tryIndex += 1;
+            dump('returned: '.$returned);
+        } while ($returned !== 0);
+
+
         $quizzes = $this->quizRepository->getActiveQuizzes();
         $ranking = $this->getDoctrine()->getRepository(UserAnswer::class)->getPointsForTry();
         $link = $request->get('link') ? $request->get('link') : 'home';
@@ -171,7 +191,7 @@ class QuizController extends AbstractController
         );
     }
 
-    public function resolveDuel($quizId, $user)
+    public function assignDuel($quizId, $user)
     {
         //sprawdzenie czy użytkownik jest w pojedynku
         $quiz = $this->quizRepository->findOneBy(['id'=>$quizId]);
@@ -186,7 +206,7 @@ class QuizController extends AbstractController
 //            return -1;
         }
 
-        return $duel;
+        return 1;
     }
 
     public function pairUsersForDuels(Quiz $quiz, $duel, $user)
@@ -212,5 +232,77 @@ class QuizController extends AbstractController
         }
 
         return $duel;
+    }
+
+    public function resolveDuelOptimistic(int $quizId, int $userId, $tryIndex = 0)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $quiz = $em->getReference(Quiz::class,$quizId);
+        $user = $em->getReference(User::class,$userId);
+        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
+        $duel = $this->duelRepository->matching($criteria)->first();
+
+        if (false !== $duel) {
+            //sprawdzenie czy bierze udział w pojedynku
+            return 0;
+        }
+        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem
+        $duel = $this->duelRepository->findOneBy(['user2' => null],['id'=>'asc']);
+        //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
+        if (null === $duel) {
+            $duelId = count($this->duelRepository->findAll()) + 1; //jak nie znajdzie zadnego duela to tworzy id dla konkretnej encji aby przy insercie bic sie o miejsce w bazie
+            $questions = $em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);
+
+            $em->getConnection()->beginTransaction();
+            try {
+                //utworzenie pojedynku - 3 proby zanim wrzuci domyslny autoincrement
+                $duelNew = new Duel($quiz, $user, null);
+                if ($tryIndex <= 3) {
+                    $duelNew->setId($duelId);
+                    $metadata = $em->getClassMetadata(get_class($duelNew));
+                    $metadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_NONE);
+                }
+                $em->persist($duelNew);
+                //utworzenie pytan quizowych dla pojedynku
+                $duelQuestions = new ArrayCollection();
+                foreach ($questions as $questionIndex => $question) {
+                    $duelQuestion = new DuelQuestion($duelNew, $question, $questionIndex);
+                    $em->persist($duelQuestion);
+                    $duelQuestions->add($duelQuestion);
+                }
+                $duelNew->setQuestions($duelQuestions);
+                $em->flush();
+                $em->getConnection()->commit();
+            } catch (\Exception $e) {
+                $em->getConnection()->rollback();
+                $em = $this->getDoctrine()->resetManager();
+                $em->clear();
+                if (is_a($e, UniqueConstraintViolationException::class)) {
+                    $sqlState = $e->getSQLState();
+                    //SQLSTATE[23000] - fail na insercie jesli klucz jest zduplikowany
+                    if ($sqlState == '23000') {
+                        return -1; //ponowne wywołanie
+                    }
+                }
+            }
+        } else {
+            //jesli pojedynek z wolnym miejscem istnieje i uzytkownik nie jest w zadnym pojedynku
+            $expectedVersion = 1;
+            $em->getConnection()->beginTransaction();
+            try {
+                $duelId = $duel->getId();
+                $toUpdate = $this->duelRepository->find($duelId, LockMode::OPTIMISTIC, $expectedVersion );
+                $toUpdate->setUser2($user);
+                $em->persist($toUpdate);
+                $em->flush();
+                $em->getConnection()->commit();
+            } catch (\Exception $e) {
+                $em->getConnection()->rollback();
+                //todo: obsluga bledu
+                return -1;
+            }
+        }
+        //jak wszystko git to zwroc 0
+        return 0;
     }
 }
