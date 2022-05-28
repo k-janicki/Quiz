@@ -39,7 +39,7 @@ AppBundle\Entity\Duel:
         user1:
             targetEntity: User
             cascade: {  }
-            fetch: LAZY
+            fetch: EAGER
             mappedBy: null
             inversedBy: null
             joinColumns:
@@ -50,7 +50,7 @@ AppBundle\Entity\Duel:
             targetEntity: User
             nullable: true
             cascade: {  }
-            fetch: LAZY
+            fetch: EAGER
             mappedBy: null
             inversedBy: null
             joinColumns:
@@ -61,7 +61,7 @@ AppBundle\Entity\Duel:
             targetEntity: Quiz
             cascade: { }
             fetch: LAZY
-            mappedBy: null
+            mappedBy: EAGER
             inversedBy: null
             joinColumns:
                 quiz_id:

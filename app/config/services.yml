@@ -36,7 +36,7 @@ services:
         autoconfigure: true
         autowire: true
         tags: ['controller.service_arguments']
-    # add more services, or override services that need manual wiring
-    # AppBundle\Service\ExampleService:
-    #     arguments:
-    #         $someArgument: 'some_value'
+    app.custom.db_platform:
+        class: AppBundle\Custom\Doctrine2\CustomDBPlatform
+        autowire: true
+        autoconfigure: true

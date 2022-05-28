@@ -19,6 +19,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\OptimisticLockException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class QuizController extends AbstractController
 {
+    const EXPECTED_VERSION = 1;
     /**
      * @var DuelRepository
      */
@@ -73,11 +75,11 @@ class QuizController extends AbstractController
         $user = $this->getUser();
         $tryIndex = 0;
         do {
-            $returned = $this->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
+//            $returned = $this->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
+            $returned = $this->resolveDuelPessimistic2($quiz->getId(), $user->getId(), $tryIndex);
             $tryIndex += 1;
             dump('returned: '.$returned);
-        } while ($returned !== 0);
-
+        } while ($returned !== 0 && $tryIndex <= 3);
 
         $quizzes = $this->quizRepository->getActiveQuizzes();
         $ranking = $this->getDoctrine()->getRepository(UserAnswer::class)->getPointsForTry();
@@ -246,7 +248,7 @@ class QuizController extends AbstractController
             //sprawdzenie czy bierze udział w pojedynku
             return 0;
         }
-        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem
+        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
         $duel = $this->duelRepository->findOneBy(['user2' => null],['id'=>'asc']);
         //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
         if (null === $duel) {
@@ -257,7 +259,7 @@ class QuizController extends AbstractController
             try {
                 //utworzenie pojedynku - 3 proby zanim wrzuci domyslny autoincrement
                 $duelNew = new Duel($quiz, $user, null);
-                if ($tryIndex <= 3) {
+                if ($tryIndex < 3) {
                     $duelNew->setId($duelId);
                     $metadata = $em->getClassMetadata(get_class($duelNew));
                     $metadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_NONE);
@@ -281,28 +283,157 @@ class QuizController extends AbstractController
                     $sqlState = $e->getSQLState();
                     //SQLSTATE[23000] - fail na insercie jesli klucz jest zduplikowany
                     if ($sqlState == '23000') {
-                        return -1; //ponowne wywołanie
+                        return -1; //ponowne wywołanie, jesli skonczy sie z -1 - cos poszlo nie tak
                     }
                 }
             }
         } else {
             //jesli pojedynek z wolnym miejscem istnieje i uzytkownik nie jest w zadnym pojedynku
-            $expectedVersion = 1;
             $em->getConnection()->beginTransaction();
             try {
                 $duelId = $duel->getId();
-                $toUpdate = $this->duelRepository->find($duelId, LockMode::OPTIMISTIC, $expectedVersion );
+                $toUpdate = $this->duelRepository->find($duelId, LockMode::OPTIMISTIC, self::EXPECTED_VERSION );
+                $toUpdate->setUser2($user);
+                $em->persist($toUpdate);
+                $em->flush();
+                $em->getConnection()->commit();
+            } catch (\Exception $e) {
+                if (is_a($e, OptimisticLockException::class)) {
+                    return -2; //nie udalo sie znalezc przeciwnika sprobuj jeszcze raz
+                }
+                dump($e);
+                $em->getConnection()->rollback();
+
+                //todo: obsluga bledu
+                return -1; //cos poszlo nie tak
+            }
+        }
+        //jak wszystko git to zwroc 0
+        return 0;
+    }
+
+    public function resolveDuelPessimistic(int $quizId, int $userId, $tryIndex = 0)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $quiz = $em->getReference(Quiz::class,$quizId);
+        $user = $em->getReference(User::class,$userId);
+        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
+        $duel = $this->duelRepository->matching($criteria)->first();
+
+        if (false !== $duel) {
+            //sprawdzenie czy bierze udział w pojedynku
+            return 0;
+        }
+        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
+        $duel = $this->duelRepository->findOneBy(['user2' => null],['id'=>'asc']);
+        //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
+        if (null === $duel || $tryIndex > 1) {
+            $duelId = count($this->duelRepository->findAll()) + 1; //jak nie znajdzie zadnego duela to tworzy id dla konkretnej encji aby przy insercie bic sie o miejsce w bazie
+            $questions = $em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);
+
+            $em->getConnection()->beginTransaction();
+            try {
+                //utworzenie pojedynku - 3 proby zanim wrzuci domyslny autoincrement
+                $duelNew = new Duel($quiz, $user, null);
+                if ($tryIndex < 3) {
+                    $duelNew->setId($duelId);
+                    $metadata = $em->getClassMetadata(get_class($duelNew));
+                    $metadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_NONE);
+                }
+                $em->persist($duelNew);
+                //utworzenie pytan quizowych dla pojedynku
+                $duelQuestions = new ArrayCollection();
+                foreach ($questions as $questionIndex => $question) {
+                    $duelQuestion = new DuelQuestion($duelNew, $question, $questionIndex);
+                    $em->persist($duelQuestion);
+                    $duelQuestions->add($duelQuestion);
+                }
+                $duelNew->setQuestions($duelQuestions);
+                $em->flush();
+                $em->getConnection()->commit();
+            } catch (\Exception $e) {
+                $em->getConnection()->rollback();
+                $em = $this->getDoctrine()->resetManager();
+                $em->clear();
+                if (is_a($e, UniqueConstraintViolationException::class)) {
+                    $sqlState = $e->getSQLState();
+                    //SQLSTATE[23000] - fail na insercie jesli klucz jest zduplikowany
+                    if ($sqlState == '23000') {
+                        return -1; //ponowne wywołanie, jesli skonczy sie z -1 - cos poszlo nie tak
+                    }
+                }
+            }
+        } else {
+            //jesli pojedynek z wolnym miejscem istnieje i uzytkownik nie jest w zadnym pojedynku
+            $em->getConnection()->beginTransaction();
+            try {
+                $duelId = $duel->getId();
+//                $toUpdate = $this->duelRepository->find($duelId, LockMode::PESSIMISTIC_WRITE);
+                $toUpdate = $this->duelRepository->customQueryPessimistic($duelId);
+                if (null === $toUpdate || $toUpdate->getUser2() !== null) {
+                    return -1;
+                }
                 $toUpdate->setUser2($user);
                 $em->persist($toUpdate);
                 $em->flush();
                 $em->getConnection()->commit();
             } catch (\Exception $e) {
                 $em->getConnection()->rollback();
-                //todo: obsluga bledu
-                return -1;
+                $em = $this->getDoctrine()->resetManager();
+                $em->clear();
+                return -1; //cos poszlo nie tak
             }
         }
         //jak wszystko git to zwroc 0
         return 0;
     }
+
+    public function resolveDuelPessimistic2(int $quizId, int $userId, $tryIndex = 0)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $quiz = $em->getReference(Quiz::class, $quizId);
+        $user = $em->getReference(User::class, $userId);
+        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
+        $duel = $this->duelRepository->matching($criteria)->first();
+
+        if (false !== $duel) {
+            //sprawdzenie czy bierze udział w pojedynku
+            return 0;
+        }
+        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
+        $em->getConnection()->beginTransaction();
+        try {
+            $duel = $this->duelRepository->customQueryPessimistic2();
+            if (null === $duel) {
+                $duelNew = new Duel($quiz, $user, null);
+                $questions = $em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);
+                $em->persist($duelNew);
+                $duelQuestions = new ArrayCollection();
+                foreach ($questions as $questionIndex => $question) {
+                    $duelQuestion = new DuelQuestion($duelNew, $question, $questionIndex);
+                    $em->persist($duelQuestion);
+                    $duelQuestions->add($duelQuestion);
+                }
+                $duelNew->setQuestions($duelQuestions);
+                $em->flush();
+                $em->getConnection()->commit();
+            } else {
+                $duelId = $duel->getId();
+                if (null === $duel || $duel->getUser2() !== null) {
+                    return -1;
+                }
+                $duel->setUser2($user);
+                $em->persist($duel);
+                $em->flush();
+                $em->getConnection()->commit();
+            }
+        } catch (\Exception $e) {
+            $em->getConnection()->rollback();
+            $em = $this->getDoctrine()->resetManager();
+            $em->clear();
+            return -1;
+        }
+        return 0;
+    }
+
 }
