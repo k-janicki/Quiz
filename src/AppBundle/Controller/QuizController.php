@@ -20,6 +20,9 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\OptimisticLockException;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPProtocolChannelException;
+use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -74,12 +77,13 @@ class QuizController extends AbstractController
         $quiz = $this->quizRepository->find(1);
         $user = $this->getUser();
         $tryIndex = 0;
-        do {
-//            $returned = $this->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
-            $returned = $this->resolveDuelPessimistic2($quiz->getId(), $user->getId(), $tryIndex);
-            $tryIndex += 1;
-            dump('returned: '.$returned);
-        } while ($returned !== 0 && $tryIndex <= 3);
+//        do {
+////            $returned = $this->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
+//            $returned = $this->resolveDuelPessimistic2($quiz->getId(), $user->getId(), $tryIndex);
+//            $tryIndex += 1;
+//            dump('returned: '.$returned);
+//        } while ($returned !== 0 && $tryIndex <= 3);
+        $this->getDuelFromQueue($quiz->getId(), $user->getId());
 
         $quizzes = $this->quizRepository->getActiveQuizzes();
         $ranking = $this->getDoctrine()->getRepository(UserAnswer::class)->getPointsForTry();
@@ -436,4 +440,97 @@ class QuizController extends AbstractController
         return 0;
     }
 
+    public function putDuelInQueue($quizId, $userId, $connection, $channel)
+    {
+        //todo: co jesli dwoch gosci chce dodac wiadomosc do kolejki bo nie znalazlo?
+        $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+        $channel = $connection->channel();
+        $channel->queue_declare('duelQueue', false, false, false, false);
+        $quiz = $this->em->getReference(Quiz::class, $quizId);
+        $user = $this->em->getReference(User::class, $userId);
+        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
+        $duel = $this->duelRepository->matching($criteria)->first();
+        if (false !== $duel) {
+            //sprawdzenie czy bierze udział w pojedynku
+            return 0;
+        }
+
+        $this->em->beginTransaction();
+        try {
+            $duelNew = new Duel($quiz, $user, null);
+            $questions = $this->em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);
+            $this->em->persist($duelNew);
+            $duelQuestions = new ArrayCollection();
+            foreach ($questions as $questionIndex => $question) {
+                $duelQuestion = new DuelQuestion($duelNew, $question, $questionIndex);
+                $this->em->persist($duelQuestion);
+                $duelQuestions->add($duelQuestion);
+            }
+            $duelNew->setQuestions($duelQuestions);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $this->em = $this->getDoctrine()->resetManager();
+            $this->em->clear();
+            return -1;
+        }
+        $msg = new AMQPMessage($duelNew->getId());
+        $channel->basic_publish($msg, '', 'duelQueue');
+
+        $channel->close();
+        $connection->close();
+        return 0;
+    }
+
+    public function getDuelFromQueue($quizId, $userId)
+    {
+        $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+        $channel = $connection->channel();
+        $quiz = $this->em->getReference(Quiz::class, $quizId);
+        $user = $this->em->getReference(User::class, $userId);
+        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
+        $duel = $this->duelRepository->matching($criteria)->first();
+        if (false !== $duel) {
+            //sprawdzenie czy bierze udział w pojedynku
+            return 0;
+        }
+        try {
+            $result = $channel->basic_get('duelQueue', true, null);
+        } catch (AMQPProtocolChannelException $exception) {
+            if (404 === $exception->getCode()) {
+                return $this->putDuelInQueue($quizId, $userId, $connection, $channel);
+            } else {
+                throw $exception;
+            }
+
+        }
+        if (null === $result) {
+            return $this->putDuelInQueue($quizId, $userId, $connection, $channel);
+        }
+        $resultBody = $result->getBody();
+        $duel = $this->duelRepository->findOneBy(['id'=>$resultBody]);
+        $user = $this->em->getReference(User::class, $userId);
+        $this->em->getConnection()->beginTransaction();
+        try {
+            if (null === $duel || $duel->getUser2() !== null) {
+                return -1;
+            }
+            $duel->setUser2($user);
+            $this->em->persist($duel);
+            $this->em->flush();
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollback();
+            $em = $this->getDoctrine()->resetManager();
+            $em->clear();
+            $msg = new AMQPMessage($resultBody);
+            $channel->basic_publish($msg, '', 'duelQueue');
+            return -1;
+        }
+        $channel->close();
+        $connection->close();
+
+        return 0;
+    }
 }
