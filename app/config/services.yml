@@ -40,3 +40,12 @@ services:
         class: AppBundle\Custom\Doctrine2\CustomDBPlatform
         autowire: true
         autoconfigure: true
+    AppBundle\Service\ResolveDuelService:
+        public: true
+        autoconfigure: true
+        autowire: true
+
+    AppBundle\Command\ResolveDuelForUserCommand:
+        public: true
+        autoconfigure: true
+        autowire: true
