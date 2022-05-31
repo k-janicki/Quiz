@@ -63,6 +63,14 @@ class ResolveDuelService
         $this->em = $managerRegistry->getManager();
     }
 
+    /**
+     * @param int $quizId
+     * @param int $userId
+     * @param $tryIndex
+     * @return int|void
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function resolveDuelOptimistic(int $quizId, int $userId, $tryIndex = 0)
     {
         $em = $this->em;
@@ -106,6 +114,14 @@ class ResolveDuelService
         return 0;
     }
 
+    /**
+     * @param int $quizId
+     * @param int $userId
+     * @param $tryIndex
+     * @return int|void
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function resolveDuelPessimistic(int $quizId, int $userId, $tryIndex = 0)
     {
         $em = $this->em;
@@ -148,6 +164,14 @@ class ResolveDuelService
         return 0;
     }
 
+    /**
+     * @param int $quizId
+     * @param int $userId
+     * @param $tryIndex
+     * @return int
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function resolveDuelPessimistic2(int $quizId, int $userId, $tryIndex = 0)
     {
         $em = $this->em;
@@ -187,7 +211,7 @@ class ResolveDuelService
         return 0;
     }
 
-    public function putDuelInQueue($quizId, $userId, $connection, $channel)
+    private function putDuelInQueue($quizId, $userId, $connection, $channel)
     {
         $millis = $userId % 1000;
         usleep($millis);
@@ -231,6 +255,14 @@ class ResolveDuelService
         return 0;
     }
 
+    /**
+     * @param $quizId
+     * @param $userId
+     * @return int
+     * @throws AMQPProtocolChannelException
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function getDuelFromQueue($quizId, $userId)
     {
         $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
@@ -288,7 +320,7 @@ class ResolveDuelService
      * @param $questions
      * @return void
      */
-    public function createDuel($em, Duel $duelNew, $questions): void
+    private function createDuel($em, Duel $duelNew, $questions): void
     {
         $em->persist($duelNew);
         $duelQuestions = new ArrayCollection();
@@ -302,7 +334,7 @@ class ResolveDuelService
         $em->getConnection()->commit();
     }
 
-    public function generateDuel($em, $quiz, $user, $tryIndex)
+    private function generateDuel($em, $quiz, $user, $tryIndex)
     {
         $duelId = count($this->duelRepository->findAll()) + 1; //jak nie znajdzie zadnego duela to tworzy id dla konkretnej encji aby przy insercie bic sie o miejsce w bazie
         $questions = $em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);

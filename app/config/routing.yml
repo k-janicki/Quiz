@@ -37,3 +37,16 @@ news:
 news_new:
   path: /new/news
   defaults: {_controller: AppBundle\Controller\NewsController::newAction}
+
+duel_pessimistic:
+  path: /duel_pessimistic
+  controller: AppBundle\Controller\QuizController:assignDuelPessimistic2Action
+  methods: POST
+
+duel_optimistic:
+  path: /duel_optimistic
+  controller: AppBundle\Controller\QuizController:assignDuelOptimisticAction
+
+duel_queue:
+  path: /duel_queue
+  controller: AppBundle\Controller\QuizController:assignDuelQueueAction

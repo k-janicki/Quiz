@@ -14,6 +14,8 @@ use AppBundle\Service\ResolveDuelService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 //use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -175,5 +177,73 @@ class QuizController extends AbstractController
                 'form' => $form->createView(),
             ]
         );
+    }
+
+    public function assignDuelOptimisticAction(Request $request)
+    {
+        $quizId = $request->get('quizId');
+        $userId = $request->get('userId');
+        $tryNumber = $request->get('tryNumber') ?? 0;
+        if ($quizId && $userId) {
+            do {
+                $returned = $this->duelService->resolveDuelOptimistic($quizId, $userId, $tryNumber);
+                $tryNumber += 1;
+            } while ($returned !== 0 && $tryNumber <= 3);
+            $response = new Response();
+            $response->setContent(json_encode([
+                'returned' => $returned,
+            ]));
+            if ($returned === 0) {
+                $response->setStatusCode(Response::HTTP_OK);
+            } else {
+                $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            return $response;
+        } else {
+            throw $this->createNotFoundException('Not found');
+        }
+    }
+
+    public function assignDuelPessimistic2Action(Request $request)
+    {
+        $quizId = $request->get('quizId');
+        $userId = $request->get('userId');
+        $tryNumber = $request->get('tryNumber') ?? 0;
+        if ($quizId && $userId) {
+            $returned =  $this->duelService->resolveDuelPessimistic2($quizId, $userId, $tryNumber);
+            $response = new Response();
+            $response->setContent(json_encode([
+                'returned' => $returned,
+            ]));
+            if ($returned === 0) {
+                $response->setStatusCode(Response::HTTP_OK);
+            } else {
+                $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            return $response;
+        } else {
+            throw $this->createNotFoundException('Not found');
+        }
+    }
+
+    public function assignDuelQueueAction(Request $request)
+    {
+        $quizId = $request->get('quizId');
+        $userId = $request->get('userId');
+        if ($quizId && $userId) {
+            $returned = $this->duelService->getDuelFromQueue($quizId, $userId);
+            $response = new Response();
+            $response->setContent(json_encode([
+                'returned' => $returned,
+            ]));
+            if ($returned === 0) {
+                $response->setStatusCode(Response::HTTP_OK);
+            } else {
+                $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            return $response;
+        } else {
+            throw $this->createNotFoundException('Not found');
+        }
     }
 }
