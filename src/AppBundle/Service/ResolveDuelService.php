@@ -24,6 +24,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 class ResolveDuelService
 {
     const EXPECTED_VERSION = 1;
+    const OPTIMISTIC_TRY_INDEX_LIMIT = 5;
     /**
      * @var DuelRepository
      */
@@ -67,7 +68,7 @@ class ResolveDuelService
      * @param int $quizId
      * @param int $userId
      * @param $tryIndex
-     * @return int|void
+     * @return int|void|array
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Doctrine\ORM\ORMException
      */
@@ -84,9 +85,10 @@ class ResolveDuelService
             return 0;
         }
         //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
-        $duel = $this->duelRepository->findOneBy(['user2' => null, 'version'=>1],['id'=>'asc']);
+        $duel = $this->duelRepository->findOneBy(['user2' => null, 'version'=>1],['id'=>'desc']); //desc zeby bralo od konca - te pierwsze moga byc niezflushowane
         //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
-        if (null === $duel) {
+        print('optimisticlimit:'.self::OPTIMISTIC_TRY_INDEX_LIMIT." try index: ".$tryIndex);
+        if (null === $duel || self::OPTIMISTIC_TRY_INDEX_LIMIT == $tryIndex) {
             return $this->generateDuel($em, $quiz, $user, $tryIndex);
         } else {
             //jesli pojedynek z wolnym miejscem istnieje i uzytkownik nie jest w zadnym pojedynku
@@ -103,11 +105,9 @@ class ResolveDuelService
                 $em = $this->managerRegistry->resetManager();
                 $em->clear();
                 if (is_a($e, OptimisticLockException::class)) {
-                    return -2; //nie udalo sie znalezc przeciwnika sprobuj jeszcze raz
+                    return [$e->getMessage(),'duelId' => $duelId]; //nie udalo sie znalezc przeciwnika sprobuj jeszcze raz
                 }
-
-                //todo: obsluga bledu
-                return -1; //cos poszlo nie tak
+                return [1,$e->getMessage()]; //cos poszlo nie tak
             }
         }
         //jak wszystko git to zwroc 0
@@ -195,7 +195,7 @@ class ResolveDuelService
             } else {
                 $duelId = $duel->getId();
                 if (null === $duel || $duel->getUser2() !== null) {
-                    return -1;
+                    return 'blad';
                 }
                 $duel->setUser2($user);
                 $em->persist($duel);
@@ -206,15 +206,13 @@ class ResolveDuelService
             $em->getConnection()->rollback();
             $em = $this->managerRegistry->resetManager();
             $em->clear();
-            return -1;
+            return $e->getMessage();
         }
         return 0;
     }
 
     private function putDuelInQueue($quizId, $userId, $connection, $channel)
     {
-        $millis = $userId % 1000;
-        usleep($millis);
         $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
         $channel = $connection->channel();
         $channel->queue_declare('duelQueue', false, false, false, false);
@@ -306,7 +304,7 @@ class ResolveDuelService
             $this->em->clear();
             $msg = new AMQPMessage($resultBody);
             $channel->basic_publish($msg, '', 'duelQueue');
-            return -1;
+            return $e->getMessage();
         }
         $channel->close();
         $connection->close();
@@ -343,7 +341,7 @@ class ResolveDuelService
         try {
             //utworzenie pojedynku - 3 proby zanim wrzuci domyslny autoincrement
             $duelNew = new Duel($quiz, $user, null);
-            if ($tryIndex < 3) {
+            if ($tryIndex <= 1) {
                 $duelNew->setId($duelId);
                 $metadata = $em->getClassMetadata(get_class($duelNew));
                 $metadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_NONE);

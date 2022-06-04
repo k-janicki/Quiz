@@ -15,7 +15,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 //use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -58,13 +57,14 @@ class QuizController extends AbstractController
         $quiz = $this->quizRepository->find(1);
         $user = $this->getUser();
         $tryIndex = 0;
-        do {
-            $returned = $this->duelService->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
-//            $returned = $this->duelService->resolveDuelPessimistic2($quiz->getId(), $user->getId(), $tryIndex);
-//            $returned = $this->duelService->getDuelFromQueue($quiz->getId(), $user->getId());
-            $tryIndex += 1;
-            dump('returned: '.$returned);
-        } while ($returned !== 0 && $tryIndex <= 3);
+
+//        do {
+//            $returned = $this->duelService->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
+////            $returned = $this->duelService->resolveDuelPessimistic2($quiz->getId(), $user->getId(), $tryIndex);
+////            $returned = $this->duelService->getDuelFromQueue($quiz->getId(), $user->getId());
+//            $tryIndex += 1;
+//            dump('returned: '.$returned);
+//        } while ($returned !== 0 && $tryIndex <= 3);
 
 
         $quizzes = $this->quizRepository->getActiveQuizzes();
@@ -184,15 +184,15 @@ class QuizController extends AbstractController
         $quizId = $request->get('quizId');
         $userId = $request->get('userId');
         $tryNumber = $request->get('tryNumber') ?? 0;
+        $retunedData = [];
         if ($quizId && $userId) {
             do {
                 $returned = $this->duelService->resolveDuelOptimistic($quizId, $userId, $tryNumber);
                 $tryNumber += 1;
-            } while ($returned !== 0 && $tryNumber <= 3);
+                $retunedData[] = ['returned'=>$returned, 'tryNumber' => $tryNumber];
+            } while ($returned !== 0 && $tryNumber <= $this->duelService::OPTIMISTIC_TRY_INDEX_LIMIT);
             $response = new Response();
-            $response->setContent(json_encode([
-                'returned' => $returned,
-            ]));
+            $response->setContent(json_encode($retunedData));
             if ($returned === 0) {
                 $response->setStatusCode(Response::HTTP_OK);
             } else {
@@ -210,7 +210,10 @@ class QuizController extends AbstractController
         $userId = $request->get('userId');
         $tryNumber = $request->get('tryNumber') ?? 0;
         if ($quizId && $userId) {
-            $returned =  $this->duelService->resolveDuelPessimistic2($quizId, $userId, $tryNumber);
+            do {
+                $returned = $this->duelService->resolveDuelPessimistic2($quizId, $userId, $tryNumber);
+                $tryNumber += 1;
+            } while ($returned !== 0 && $tryNumber <= 3);
             $response = new Response();
             $response->setContent(json_encode([
                 'returned' => $returned,
@@ -230,8 +233,14 @@ class QuizController extends AbstractController
     {
         $quizId = $request->get('quizId');
         $userId = $request->get('userId');
+        $tryNumber = 0;
         if ($quizId && $userId) {
-            $returned = $this->duelService->getDuelFromQueue($quizId, $userId);
+            $millis = $userId % 1000;
+            usleep($millis);
+            do {
+                $returned = $this->duelService->getDuelFromQueue($quizId, $userId);
+                $tryNumber += 1;
+            } while ($returned !== 0 && $tryNumber <= 3);
             $response = new Response();
             $response->setContent(json_encode([
                 'returned' => $returned,
@@ -245,5 +254,12 @@ class QuizController extends AbstractController
         } else {
             throw $this->createNotFoundException('Not found');
         }
+    }
+
+    public function resetDuelsAction()
+    {
+        $repo = $this->getDoctrine()->getManager()->getRepository(Duel::class);
+        $repo->resetDuels();
+        return new Response('OK', Response::HTTP_OK);
     }
 }

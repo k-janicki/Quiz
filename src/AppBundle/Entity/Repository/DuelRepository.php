@@ -55,4 +55,38 @@ class DuelRepository extends ServiceEntityRepository
 
         return $query->getOneOrNullResult();
     }
+
+    public function resetDuels()
+    {
+        $sql = "
+            DELETE FROM duels D;
+            ALTER TABLE `duels`
+                AUTO_INCREMENT=1;
+        ";
+        $this->getEntityManager()->getConnection()->executeQuery($sql);
+    }
+
+    public function countPairedDuels()
+    {
+        $sql = "
+            SELECT 
+                COUNT(D.id) as total_duels,
+                Q.assigned_duels,
+                Q2.not_assigned_duels
+            FROM duels D
+            JOIN (
+                SELECT 
+                    COUNT(D.id) AS assigned_duels
+                FROM duels D
+                WHERE D.user_id_1 IS NOT NULL AND D.user_id_2 IS NOT NULL
+            ) Q
+            JOIN (
+                SELECT
+                    COUNT(D.id) AS not_assigned_duels
+                FROM duels D
+                WHERE D.user_id_2 IS NULL
+            ) Q2
+            ;
+        ";
+    }
 }

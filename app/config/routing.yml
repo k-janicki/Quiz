@@ -41,7 +41,6 @@ news_new:
 duel_pessimistic:
   path: /duel_pessimistic
   controller: AppBundle\Controller\QuizController:assignDuelPessimistic2Action
-  methods: POST
 
 duel_optimistic:
   path: /duel_optimistic
@@ -50,3 +49,7 @@ duel_optimistic:
 duel_queue:
   path: /duel_queue
   controller: AppBundle\Controller\QuizController:assignDuelQueueAction
+
+duel_reset:
+  path: /duel_reset
+  controller: AppBundle\Controller\QuizController:resetDuelsAction

@@ -49,3 +49,8 @@ services:
         public: true
         autoconfigure: true
         autowire: true
+#
+#    AppBundle\Tests\Controller\QuizControllerTest:
+#        public: true
+#        arguments:
+#            $stopwatch: '@debug.stopwatch'

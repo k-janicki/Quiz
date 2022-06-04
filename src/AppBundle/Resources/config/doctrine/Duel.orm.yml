@@ -1,6 +1,7 @@
 AppBundle\Entity\Duel:
     type: entity
     table: duels
+    repositoryClass: AppBundle\Entity\Repository\DuelRepository
     indexes:
         FK_answers_quizes:
             columns:

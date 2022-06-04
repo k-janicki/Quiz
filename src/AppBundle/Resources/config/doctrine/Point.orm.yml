@@ -34,7 +34,7 @@ AppBundle\Entity\Point:
             column: time_points_amount
     manyToOne:
         quiz:
-            targetEntity: Quizes
+            targetEntity: Quiz
             cascade: {  }
             fetch: LAZY
             mappedBy: null
@@ -44,7 +44,7 @@ AppBundle\Entity\Point:
                     referencedColumnName: id
             orphanRemoval: false
         user:
-            targetEntity: Users
+            targetEntity: User
             cascade: {  }
             fetch: LAZY
             mappedBy: null
