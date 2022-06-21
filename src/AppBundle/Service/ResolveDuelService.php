@@ -25,6 +25,8 @@ class ResolveDuelService
 {
     const EXPECTED_VERSION = 1;
     const OPTIMISTIC_TRY_INDEX_LIMIT = 5;
+    const PESSIMISTIC_TRY_INDEX_LIMIT = 10;
+    const QUEUE_TRY_INDEX_LIMIT = 5;
     /**
      * @var DuelRepository
      */
@@ -87,7 +89,6 @@ class ResolveDuelService
         //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
         $duel = $this->duelRepository->findOneBy(['user2' => null, 'version'=>1],['id'=>'desc']); //desc zeby bralo od konca - te pierwsze moga byc niezflushowane
         //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
-        print('optimisticlimit:'.self::OPTIMISTIC_TRY_INDEX_LIMIT." try index: ".$tryIndex);
         if (null === $duel || self::OPTIMISTIC_TRY_INDEX_LIMIT == $tryIndex) {
             return $this->generateDuel($em, $quiz, $user, $tryIndex);
         } else {
@@ -187,7 +188,11 @@ class ResolveDuelService
         //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
         $em->getConnection()->beginTransaction();
         try {
-            $duel = $this->duelRepository->customQueryPessimistic2();
+            if (self::PESSIMISTIC_TRY_INDEX_LIMIT !== $tryIndex) {
+                $duel = $this->duelRepository->customQueryPessimistic2();
+            } else {
+                $duel = null;
+            }
             if (null === $duel) {
                 $duelNew = new Duel($quiz, $user, null);
                 $questions = $em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);
@@ -195,7 +200,7 @@ class ResolveDuelService
             } else {
                 $duelId = $duel->getId();
                 if (null === $duel || $duel->getUser2() !== null) {
-                    return 'blad';
+                    return -2;
                 }
                 $duel->setUser2($user);
                 $em->persist($duel);
@@ -206,7 +211,7 @@ class ResolveDuelService
             $em->getConnection()->rollback();
             $em = $this->managerRegistry->resetManager();
             $em->clear();
-            return $e->getMessage();
+            return -2;
         }
         return 0;
     }
@@ -220,10 +225,6 @@ class ResolveDuelService
         $user = $this->em->getReference(User::class, $userId);
         $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
         $duel = $this->duelRepository->matching($criteria)->first();
-        if (false !== $duel) {
-            //sprawdzenie czy bierze udział w pojedynku
-            return 0;
-        }
 
         $this->em->beginTransaction();
         try {
@@ -261,7 +262,7 @@ class ResolveDuelService
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Doctrine\ORM\ORMException
      */
-    public function getDuelFromQueue($quizId, $userId)
+    public function getDuelFromQueue($quizId, $userId, $tryNumber)
     {
         $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
         $channel = $connection->channel();
@@ -277,7 +278,11 @@ class ResolveDuelService
             $result = $channel->basic_get('duelQueue', true, null);
         } catch (AMQPProtocolChannelException $exception) {
             if (404 === $exception->getCode()) {
-                return $this->putDuelInQueue($quizId, $userId, $connection, $channel);
+                if ($tryNumber < self::QUEUE_TRY_INDEX_LIMIT) {
+                    return -1;
+                } else {
+                    return $this->putDuelInQueue($quizId, $userId, $connection, $channel);
+                }
             } else {
                 throw $exception;
             }
@@ -304,7 +309,7 @@ class ResolveDuelService
             $this->em->clear();
             $msg = new AMQPMessage($resultBody);
             $channel->basic_publish($msg, '', 'duelQueue');
-            return $e->getMessage();
+            return -2;
         }
         $channel->close();
         $connection->close();
@@ -366,6 +371,8 @@ class ResolveDuelService
                 //SQLSTATE[23000] - fail na insercie jesli klucz jest zduplikowany
                 if ($sqlState == '23000') {
                     return -1; //ponowne wywołanie, jesli skonczy sie z -1 - cos poszlo nie tak
+                } else {
+                    return 1;
                 }
             }
         }

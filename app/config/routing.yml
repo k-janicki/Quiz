@@ -53,3 +53,7 @@ duel_queue:
 duel_reset:
   path: /duel_reset
   controller: AppBundle\Controller\QuizController:resetDuelsAction
+
+duel_data_obtain:
+  path: /duel_data_obtain
+  controller: AppBundle\Controller\QuizController:obtainResolvedDuelsDataAction

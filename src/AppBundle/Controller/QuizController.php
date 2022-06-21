@@ -184,15 +184,15 @@ class QuizController extends AbstractController
         $quizId = $request->get('quizId');
         $userId = $request->get('userId');
         $tryNumber = $request->get('tryNumber') ?? 0;
-        $retunedData = [];
+        $returnedData = [];
         if ($quizId && $userId) {
             do {
                 $returned = $this->duelService->resolveDuelOptimistic($quizId, $userId, $tryNumber);
                 $tryNumber += 1;
-                $retunedData[] = ['returned'=>$returned, 'tryNumber' => $tryNumber];
+                $returnedData[] = ['returned'=>$returned, 'tryNumber' => $tryNumber];
             } while ($returned !== 0 && $tryNumber <= $this->duelService::OPTIMISTIC_TRY_INDEX_LIMIT);
             $response = new Response();
-            $response->setContent(json_encode($retunedData));
+            $response->setContent(json_encode($returnedData));
             if ($returned === 0) {
                 $response->setStatusCode(Response::HTTP_OK);
             } else {
@@ -213,10 +213,14 @@ class QuizController extends AbstractController
             do {
                 $returned = $this->duelService->resolveDuelPessimistic2($quizId, $userId, $tryNumber);
                 $tryNumber += 1;
-            } while ($returned !== 0 && $tryNumber <= 3);
+                if ($returned === 0 && $tryNumber >= ($this->duelService::PESSIMISTIC_TRY_INDEX_LIMIT/2)) {
+                    break;
+                }
+            } while ($returned !== 0 && $tryNumber <= $this->duelService::PESSIMISTIC_TRY_INDEX_LIMIT);
             $response = new Response();
             $response->setContent(json_encode([
                 'returned' => $returned,
+                'tryNumber' => $tryNumber
             ]));
             if ($returned === 0) {
                 $response->setStatusCode(Response::HTTP_OK);
@@ -235,12 +239,10 @@ class QuizController extends AbstractController
         $userId = $request->get('userId');
         $tryNumber = 0;
         if ($quizId && $userId) {
-            $millis = $userId % 1000;
-            usleep($millis);
             do {
-                $returned = $this->duelService->getDuelFromQueue($quizId, $userId);
+                $returned = $this->duelService->getDuelFromQueue($quizId, $userId, $tryNumber);
                 $tryNumber += 1;
-            } while ($returned !== 0 && $tryNumber <= 3);
+            } while ($returned !== 0 && $tryNumber <= $this->duelService::QUEUE_TRY_INDEX_LIMIT);
             $response = new Response();
             $response->setContent(json_encode([
                 'returned' => $returned,
@@ -261,5 +263,15 @@ class QuizController extends AbstractController
         $repo = $this->getDoctrine()->getManager()->getRepository(Duel::class);
         $repo->resetDuels();
         return new Response('OK', Response::HTTP_OK);
+    }
+
+    public function obtainResolvedDuelsDataAction()
+    {
+        $result = $this->getDoctrine()->getManager()->getRepository(Duel::class)->countPairedDuels();
+        $response = new Response();
+        $response->setContent(json_encode([
+            $result,
+        ]));
+        return $response;
     }
 }

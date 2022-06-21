@@ -71,8 +71,8 @@ class DuelRepository extends ServiceEntityRepository
         $sql = "
             SELECT 
                 COUNT(D.id) as total_duels,
-                Q.assigned_duels,
-                Q2.not_assigned_duels
+                IFNULL(Q.assigned_duels,0) as assigned_duels,
+                IFNULL(Q2.not_assigned_duels,0) as not_assigned_duels
             FROM duels D
             JOIN (
                 SELECT 
@@ -88,5 +88,6 @@ class DuelRepository extends ServiceEntityRepository
             ) Q2
             ;
         ";
+        return $this->getEntityManager()->getConnection()->executeQuery($sql)->fetchAssociative();
     }
 }
