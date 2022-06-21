@@ -60,23 +60,22 @@ class ResolveDuelForUserCommand extends Command
                 $tryIndex = 0;
                 do {
                     $returned = $this->duelService->resolveDuelOptimistic($quizId, $userId, $tryIndex);
-//                    $returned = $this->duelService->getDuelFromQueue($quiz->getId(), $user->getId());
                     $tryIndex += 1;
-                } while ($returned !== 0 && $tryIndex <= 3);
+                } while ($returned !== 0 && $tryIndex <= $this->duelService::OPTIMISTIC_TRY_INDEX_LIMIT);
                 break;
             case 'p':
                 $tryIndex = 0;
                 do {
-                    $returned = $this->duelService->resolveDuelPessimistic2($quizId, $userId, $tryIndex);
+                    $returned = $this->duelService->resolveDuelPessimistic($quizId, $userId, $tryIndex);
                     $tryIndex += 1;
-                } while ($returned !== 0 && $tryIndex <= 3);
+                } while ($returned !== 0 && $tryIndex <= $this->duelService::PESSIMISTIC_TRY_INDEX_LIMIT);
                 break;
             case 'q':
                 $tryIndex = 0;
                 do {
                     $returned = $this->duelService->getDuelFromQueue($quizId, $userId);
                     $tryIndex += 1;
-                } while ($returned !== 0 && $tryIndex <= 3);
+                } while ($returned !== 0 && $tryIndex <= $this->duelService::QUEUE_TRY_INDEX_LIMIT);
                 break;
             default:
                 $returned = -1;

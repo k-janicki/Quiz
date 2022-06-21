@@ -119,61 +119,11 @@ class ResolveDuelService
      * @param int $quizId
      * @param int $userId
      * @param $tryIndex
-     * @return int|void
-     * @throws \Doctrine\DBAL\ConnectionException
-     * @throws \Doctrine\ORM\ORMException
-     */
-    public function resolveDuelPessimistic(int $quizId, int $userId, $tryIndex = 0)
-    {
-        $em = $this->em;
-        $quiz = $em->getReference(Quiz::class,$quizId);
-        $user = $em->getReference(User::class,$userId);
-        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
-        $duel = $this->duelRepository->matching($criteria)->first();
-
-        if (false !== $duel) {
-            //sprawdzenie czy bierze udział w pojedynku
-            return 0;
-        }
-        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
-        $duel = $this->duelRepository->findOneBy(['user2' => null],['id'=>'asc']);
-        //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
-        if (null === $duel || $tryIndex > 1) {
-            return $this->generateDuel($em, $quiz, $user, $tryIndex);
-        } else {
-            //jesli pojedynek z wolnym miejscem istnieje i uzytkownik nie jest w zadnym pojedynku
-            $em->getConnection()->beginTransaction();
-            try {
-                $duelId = $duel->getId();
-//                $toUpdate = $this->duelRepository->find($duelId, LockMode::PESSIMISTIC_WRITE);
-                $toUpdate = $this->duelRepository->customQueryPessimistic($duelId);
-                if (null === $toUpdate || $toUpdate->getUser2() !== null) {
-                    return -1;
-                }
-                $toUpdate->setUser2($user);
-                $em->persist($toUpdate);
-                $em->flush();
-                $em->getConnection()->commit();
-            } catch (\Exception $e) {
-                $em->getConnection()->rollback();
-                $em = $this->managerRegistry->resetManager();
-                $em->clear();
-                return -1; //cos poszlo nie tak
-            }
-        }
-        //jak wszystko git to zwroc 0
-        return 0;
-    }
-
-    /**
-     * @param int $quizId
-     * @param int $userId
-     * @param $tryIndex
      * @return int
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Doctrine\ORM\ORMException
      */
-    public function resolveDuelPessimistic2(int $quizId, int $userId, $tryIndex = 0)
+    public function resolveDuelPessimistic(int $quizId, int $userId, $tryIndex = 0)
     {
         $em = $this->em;
         $quiz = $em->getReference(Quiz::class, $quizId);
@@ -189,7 +139,7 @@ class ResolveDuelService
         $em->getConnection()->beginTransaction();
         try {
             if (self::PESSIMISTIC_TRY_INDEX_LIMIT !== $tryIndex) {
-                $duel = $this->duelRepository->customQueryPessimistic2();
+                $duel = $this->duelRepository->customQueryPessimistic();
             } else {
                 $duel = null;
             }

@@ -60,7 +60,7 @@ class QuizController extends AbstractController
 
 //        do {
 //            $returned = $this->duelService->resolveDuelOptimistic($quiz->getId(), $user->getId(), $tryIndex);
-////            $returned = $this->duelService->resolveDuelPessimistic2($quiz->getId(), $user->getId(), $tryIndex);
+////            $returned = $this->duelService->resolveDuelPessimistic($quiz->getId(), $user->getId(), $tryIndex);
 ////            $returned = $this->duelService->getDuelFromQueue($quiz->getId(), $user->getId());
 //            $tryIndex += 1;
 //            dump('returned: '.$returned);
@@ -204,14 +204,14 @@ class QuizController extends AbstractController
         }
     }
 
-    public function assignDuelPessimistic2Action(Request $request)
+    public function assignDuelPessimisticAction(Request $request)
     {
         $quizId = $request->get('quizId');
         $userId = $request->get('userId');
         $tryNumber = $request->get('tryNumber') ?? 0;
         if ($quizId && $userId) {
             do {
-                $returned = $this->duelService->resolveDuelPessimistic2($quizId, $userId, $tryNumber);
+                $returned = $this->duelService->resolveDuelPessimistic($quizId, $userId, $tryNumber);
                 $tryNumber += 1;
                 if ($returned === 0 && $tryNumber >= ($this->duelService::PESSIMISTIC_TRY_INDEX_LIMIT/2)) {
                     break;

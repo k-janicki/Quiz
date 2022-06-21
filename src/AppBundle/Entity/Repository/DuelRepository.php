@@ -32,18 +32,7 @@ class DuelRepository extends ServiceEntityRepository
 
     }
 
-    public function customQueryPessimistic($duelId)
-    {
-        $qb = $this->createQueryBuilder('d');
-        $qb->select('d');
-        $qb->where($qb->expr()->eq('d.id', $duelId));
-        $query = $qb->getQuery();
-        $query->setLockMode(\Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
-
-        return $query->getOneOrNullResult();
-    }
-
-    public function customQueryPessimistic2()
+    public function customQueryPessimistic()
     {
         $qb = $this->createQueryBuilder('d');
         $qb->select('d')

@@ -8,12 +8,10 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e830fe48-2394-4a75-a901-301757b37172" name="Default Changelist" comment="Fork na magisterke + dodanie pojedynków">
-      <change beforePath="$PROJECT_DIR$/.idea/Quiz.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Quiz.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/symfony2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/symfony2.xml" afterDir="false" />
+    <list default="true" id="e830fe48-2394-4a75-a901-301757b37172" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/config/routing.yml" beforeDir="false" afterPath="$PROJECT_DIR$/app/config/routing.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Command/ResolveDuelForUserCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Command/ResolveDuelForUserCommand.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Entity/Repository/DuelRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Entity/Repository/DuelRepository.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Service/ResolveDuelService.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Service/ResolveDuelService.php" afterDir="false" />
@@ -260,7 +258,7 @@
       <workItem from="1654439032186" duration="5760000" />
       <workItem from="1654550939318" duration="1367000" />
       <workItem from="1654631771799" duration="7699000" />
-      <workItem from="1655751605176" duration="3684000" />
+      <workItem from="1655751605176" duration="5977000" />
     </task>
     <task id="LOCAL-00001" summary="Poprawki:&#10;- redirect do logowania na froncie&#10;- podpiecie bootstrapa 4 i dziedziczenie w widokach&#10;- częściowa przeróbka na bootstrap 4">
       <created>1606778195246</created>
@@ -332,7 +330,14 @@
       <option name="project" value="LOCAL" />
       <updated>1654373083468</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="final">
+      <created>1655844330691</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1655844330691</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -367,20 +372,16 @@
     <MESSAGE value="Przeniesienie przypisania pojedynku do serwisu; utworzenie commanda do przypisywania z lini poleceń" />
     <MESSAGE value="testy optymistycznego" />
     <MESSAGE value="Dodanie resetu quizów; poprawki pod testowanie jmeterem" />
-    <option name="LAST_COMMIT_MESSAGE" value="Dodanie resetu quizów; poprawki pod testowanie jmeterem" />
+    <MESSAGE value="final" />
+    <option name="LAST_COMMIT_MESSAGE" value="final" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/AppBundle/Service/ResolveDuelService.php</url>
-          <line>353</line>
+          <line>303</line>
           <option name="timeStamp" value="89" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/src/AppBundle/Service/ResolveDuelService.php</url>
-          <line>210</line>
-          <option name="timeStamp" value="98" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php</url>
