@@ -129,7 +129,6 @@ class ResolveDuelService
         }
         $quiz = $returned['quiz'];
         $user = $returned['user'];
-        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
         $em->getConnection()->beginTransaction();
         try {
             if (self::PESSIMISTIC_TRY_INDEX_LIMIT !== $tryIndex) {
@@ -202,7 +201,6 @@ class ResolveDuelService
         }
         $quiz = $returned['quiz'];
         $user = $returned['user'];
-
         $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
         $channel = $connection->channel();
         try {
@@ -217,14 +215,12 @@ class ResolveDuelService
             } else {
                 throw $exception;
             }
-
         }
         if (null === $result) {
             return $this->putDuelInQueue($quiz, $user, $connection, $channel);
         }
         $resultBody = $result->getBody();
         $duel = $this->duelRepository->findOneBy(['id'=>$resultBody]);
-
         $this->em->getConnection()->beginTransaction();
         try {
             if (null === $duel || $duel->getUser2() !== null) {
@@ -244,7 +240,6 @@ class ResolveDuelService
         }
         $channel->close();
         $connection->close();
-
         return 0;
     }
 
@@ -270,12 +265,11 @@ class ResolveDuelService
 
     private function generateDuel($em, $quiz, $user, $tryIndex)
     {
-        $duelId = count($this->duelRepository->findAll()) + 1; //jak nie znajdzie zadnego duela to tworzy id dla konkretnej encji aby przy insercie bic sie o miejsce w bazie
+        $duelId = count($this->duelRepository->findAll()) + 1;
         $questions = $em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);
 
         $em->getConnection()->beginTransaction();
         try {
-            //utworzenie pojedynku - 3 proby zanim wrzuci domyslny autoincrement
             $duelNew = new Duel($quiz, $user, null);
             if ($tryIndex <= 1) {
                 $duelNew->setId($duelId);
@@ -298,9 +292,8 @@ class ResolveDuelService
             $em->clear();
             if (is_a($e, UniqueConstraintViolationException::class)) {
                 $sqlState = $e->getSQLState();
-                //SQLSTATE[23000] - fail na insercie jesli klucz jest zduplikowany
                 if ($sqlState == '23000') {
-                    return -1; //ponowne wywołanie, jesli skonczy sie z -1 - cos poszlo nie tak
+                    return -1;
                 } else {
                     return 1;
                 }
