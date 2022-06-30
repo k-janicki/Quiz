@@ -56,7 +56,9 @@ class ResolveDuelService
      * @param QuestionRepository $questionRepository
      * @param UserAnswerRepository $userAnswerRepository
      */
-    public function __construct(\Doctrine\Persistence\ManagerRegistry $managerRegistry, DuelRepository $duelRepository, QuizRepository $quizRepository, QuestionRepository $questionRepository, UserAnswerRepository $userAnswerRepository)
+    public function __construct(\Doctrine\Persistence\ManagerRegistry $managerRegistry,
+                                DuelRepository $duelRepository,
+                                QuizRepository $quizRepository, QuestionRepository $questionRepository, UserAnswerRepository $userAnswerRepository)
     {
         $this->duelRepository = $duelRepository;
         $this->quizRepository = $quizRepository;
@@ -83,13 +85,10 @@ class ResolveDuelService
         }
         $quiz = $returned['quiz'];
         $user = $returned['user'];
-        //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
-        $duel = $this->duelRepository->findOneBy(['user2' => null, 'version'=>1],['id'=>'desc']); //desc zeby bralo od konca - te pierwsze moga byc niezflushowane
-        //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
+        $duel = $this->duelRepository->findOneBy(['user2' => null, 'version'=>1],['id'=>'desc']);
         if (null === $duel || self::OPTIMISTIC_TRY_INDEX_LIMIT == $tryIndex) {
             return $this->generateDuel($em, $quiz, $user, $tryIndex);
         } else {
-            //jesli pojedynek z wolnym miejscem istnieje i uzytkownik nie jest w zadnym pojedynku
             $em->getConnection()->beginTransaction();
             try {
                 $duelId = $duel->getId();
@@ -103,12 +102,12 @@ class ResolveDuelService
                 $em = $this->managerRegistry->resetManager();
                 $em->clear();
                 if (is_a($e, OptimisticLockException::class)) {
-                    return [$e->getMessage(),'duelId' => $duelId]; //nie udalo sie znalezc przeciwnika sprobuj jeszcze raz
+                    return [$e->getMessage(),'duelId' => $duelId];
                 }
-                return [1,$e->getMessage()]; //cos poszlo nie tak
+                return [1,$e->getMessage()];
             }
         }
-        //jak wszystko git to zwroc 0
+
         return 0;
     }
 
