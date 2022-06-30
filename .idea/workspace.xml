@@ -10,10 +10,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e830fe48-2394-4a75-a901-301757b37172" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/config/routing.yml" beforeDir="false" afterPath="$PROJECT_DIR$/app/config/routing.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Command/ResolveDuelForUserCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Command/ResolveDuelForUserCommand.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Entity/Repository/DuelRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Entity/Repository/DuelRepository.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Service/ResolveDuelService.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppBundle/Service/ResolveDuelService.php" afterDir="false" />
     </list>
     <list id="219251f6-9ead-4c60-8f24-d5ffd19f0806" name="nie commitowac" comment="" />
@@ -258,7 +254,9 @@
       <workItem from="1654439032186" duration="5760000" />
       <workItem from="1654550939318" duration="1367000" />
       <workItem from="1654631771799" duration="7699000" />
-      <workItem from="1655751605176" duration="5977000" />
+      <workItem from="1655751605176" duration="11350000" />
+      <workItem from="1656024443410" duration="3650000" />
+      <workItem from="1656458965058" duration="1446000" />
     </task>
     <task id="LOCAL-00001" summary="Poprawki:&#10;- redirect do logowania na froncie&#10;- podpiecie bootstrapa 4 i dziedziczenie w widokach&#10;- częściowa przeróbka na bootstrap 4">
       <created>1606778195246</created>
@@ -337,7 +335,14 @@
       <option name="project" value="LOCAL" />
       <updated>1655844330691</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="final">
+      <created>1655848250041</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1655848250041</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -378,11 +383,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/src/AppBundle/Service/ResolveDuelService.php</url>
-          <line>303</line>
-          <option name="timeStamp" value="89" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/src/AppBundle/Controller/QuizController.php</url>
           <line>218</line>

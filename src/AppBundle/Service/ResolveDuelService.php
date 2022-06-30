@@ -24,9 +24,9 @@ use PhpAmqpLib\Message\AMQPMessage;
 class ResolveDuelService
 {
     const EXPECTED_VERSION = 1;
-    const OPTIMISTIC_TRY_INDEX_LIMIT = 5;
+    const OPTIMISTIC_TRY_INDEX_LIMIT = 10;
     const PESSIMISTIC_TRY_INDEX_LIMIT = 10;
-    const QUEUE_TRY_INDEX_LIMIT = 5;
+    const QUEUE_TRY_INDEX_LIMIT = 10;
     /**
      * @var DuelRepository
      */
@@ -77,15 +77,12 @@ class ResolveDuelService
     public function resolveDuelOptimistic(int $quizId, int $userId, $tryIndex = 0)
     {
         $em = $this->em;
-        $quiz = $em->getReference(Quiz::class,$quizId);
-        $user = $em->getReference(User::class,$userId);
-        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
-        $duel = $this->duelRepository->matching($criteria)->first();
-
-        if (false !== $duel) {
-            //sprawdzenie czy bierze udział w pojedynku
+        $returned = $this->checkUserDuels($em, $quizId, $userId);
+        if (true === $returned['hasDuels']) {
             return 0;
         }
+        $quiz = $returned['quiz'];
+        $user = $returned['user'];
         //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
         $duel = $this->duelRepository->findOneBy(['user2' => null, 'version'=>1],['id'=>'desc']); //desc zeby bralo od konca - te pierwsze moga byc niezflushowane
         //wygenerowanie nowego pojedynku jesli nie ma zadnego pustego
@@ -125,16 +122,14 @@ class ResolveDuelService
      */
     public function resolveDuelPessimistic(int $quizId, int $userId, $tryIndex = 0)
     {
-        $em = $this->em;
-        $quiz = $em->getReference(Quiz::class, $quizId);
-        $user = $em->getReference(User::class, $userId);
-        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
-        $duel = $this->duelRepository->matching($criteria)->first();
 
-        if (false !== $duel) {
-            //sprawdzenie czy bierze udział w pojedynku
+        $em = $this->em;
+        $returned = $this->checkUserDuels($em, $quizId, $userId);
+        if (true === $returned['hasDuels']) {
             return 0;
         }
+        $quiz = $returned['quiz'];
+        $user = $returned['user'];
         //sprawdzenie czy istnieje jakis pojedynek z wolnym miejscem bez modyfikacji
         $em->getConnection()->beginTransaction();
         try {
@@ -166,30 +161,17 @@ class ResolveDuelService
         return 0;
     }
 
-    private function putDuelInQueue($quizId, $userId, $connection, $channel)
+    private function putDuelInQueue($quiz, $user, $connection, $channel)
     {
         $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
         $channel = $connection->channel();
         $channel->queue_declare('duelQueue', false, false, false, false);
-        $quiz = $this->em->getReference(Quiz::class, $quizId);
-        $user = $this->em->getReference(User::class, $userId);
-        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
-        $duel = $this->duelRepository->matching($criteria)->first();
 
         $this->em->beginTransaction();
         try {
             $duelNew = new Duel($quiz, $user, null);
             $questions = $this->em->getRepository(Question::class)->generateQuestionsForQuiz(5, $quiz);
-            $this->em->persist($duelNew);
-            $duelQuestions = new ArrayCollection();
-            foreach ($questions as $questionIndex => $question) {
-                $duelQuestion = new DuelQuestion($duelNew, $question, $questionIndex);
-                $this->em->persist($duelQuestion);
-                $duelQuestions->add($duelQuestion);
-            }
-            $duelNew->setQuestions($duelQuestions);
-            $this->em->flush();
-            $this->em->getConnection()->commit();
+            $this->createDuel($this->em, $duelNew, $questions);
         } catch (\Exception $e) {
             $this->em->getConnection()->rollback();
             $this->managerRegistry->resetManager();
@@ -214,16 +196,16 @@ class ResolveDuelService
      */
     public function getDuelFromQueue($quizId, $userId, $tryNumber)
     {
-        $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
-        $channel = $connection->channel();
-        $quiz = $this->em->getReference(Quiz::class, $quizId);
-        $user = $this->em->getReference(User::class, $userId);
-        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
-        $duel = $this->duelRepository->matching($criteria)->first();
-        if (false !== $duel) {
-            //sprawdzenie czy bierze udział w pojedynku
+        $em = $this->em;
+        $returned = $this->checkUserDuels($em, $quizId, $userId);
+        if (true === $returned['hasDuels']) {
             return 0;
         }
+        $quiz = $returned['quiz'];
+        $user = $returned['user'];
+
+        $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+        $channel = $connection->channel();
         try {
             $result = $channel->basic_get('duelQueue', true, null);
         } catch (AMQPProtocolChannelException $exception) {
@@ -231,7 +213,7 @@ class ResolveDuelService
                 if ($tryNumber < self::QUEUE_TRY_INDEX_LIMIT) {
                     return -1;
                 } else {
-                    return $this->putDuelInQueue($quizId, $userId, $connection, $channel);
+                    return $this->putDuelInQueue($quiz, $user, $connection, $channel);
                 }
             } else {
                 throw $exception;
@@ -239,11 +221,11 @@ class ResolveDuelService
 
         }
         if (null === $result) {
-            return $this->putDuelInQueue($quizId, $userId, $connection, $channel);
+            return $this->putDuelInQueue($quiz, $user, $connection, $channel);
         }
         $resultBody = $result->getBody();
         $duel = $this->duelRepository->findOneBy(['id'=>$resultBody]);
-        $user = $this->em->getReference(User::class, $userId);
+
         $this->em->getConnection()->beginTransaction();
         try {
             if (null === $duel || $duel->getUser2() !== null) {
@@ -311,7 +293,6 @@ class ResolveDuelService
             $duelNew->setQuestions($duelQuestions);
             $em->flush();
             $em->getConnection()->commit();
-            return 0;
         } catch (\Exception $e) {
             $em->getConnection()->rollback();
             $em = $this->managerRegistry->resetManager();
@@ -325,6 +306,22 @@ class ResolveDuelService
                     return 1;
                 }
             }
+        }
+        return 0;
+    }
+
+    public function checkUserDuels($em, $quizId, $userId)
+    {
+        $quiz = $em->getReference(Quiz::class, $quizId);
+        $user = $em->getReference(User::class, $userId);
+        $criteria = Duel::getDuelCriteriaForUser($quiz, $user);
+        $duel = $this->duelRepository->matching($criteria)->first();
+
+        if (false !== $duel) {
+            //sprawdzenie czy bierze udział w pojedynku
+            return ['hasDuels' => true];
+        } else {
+            return ['hasDuels' => false, 'user' => $user, 'quiz' => $quiz];
         }
     }
 }
